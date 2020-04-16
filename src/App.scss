@@ -1,0 +1,21 @@
+@import "./scss/color";
+@import "./scss/common";
+
+html,
+body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+#root{
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
