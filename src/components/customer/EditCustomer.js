@@ -1,5 +1,7 @@
 
 import React, { Component } from 'react';
+import { Typography } from '@material-ui/core';
+
 import CustomerForm from './CustomerForm';
 
 export default class EditCustomer extends Component {
@@ -17,7 +19,12 @@ export default class EditCustomer extends Component {
     }
     render = () => {
         return (
-            <CustomerForm customer={this.state.customer} />
+            <>
+                <Typography variant="h4" align="center">
+                    Edit Customer
+                </Typography>
+                <CustomerForm customer={this.state.customer} />
+            </>
         )
     }
 } 

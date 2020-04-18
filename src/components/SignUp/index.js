@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link , withRouter} from 'react-router-dom';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 
 import { Typography} from '@material-ui/core';
 
@@ -53,8 +54,9 @@ class SignUpFormBase extends Component {
             email
           });
       })
-      .then(() => {
+      .then((user) => {
         this.setState({ ...INITIAL_STATE });
+        this.props.onUserSignUp(user);
         this.props.history.push(ROUTES.LANDING);
       })
       .catch(error => {
@@ -124,9 +126,14 @@ const SignUpLink = () => (
   </p>
 );
 
+const mapDispatchToProps = dispatch => ({
+  onUserSignUp: (user) => dispatch({type: 'USER_SET', user})
+});
+
 const SignUpForm = compose(
     withRouter,
-    withFirebase
+    withFirebase,
+    connect(mapDispatchToProps)
 )(SignUpFormBase);
 export default SignUpPage;
 export { SignUpForm, SignUpLink };

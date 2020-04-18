@@ -1,42 +1,47 @@
 import React, { Component } from "react";
 import { withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
+import { withFirebase } from '../Firebase';
 import { MyCard, AddCircleIcon } from '../../core';
 import "./Customer.scss";
+import * as ROUTES from '../../constants/routes';
 
 class Customer extends Component {
 
     state = {
-        users: []
-    }
-
-    transformData = (response) => {
-        return response.json();
-    };
-
-    dataReciever = (response) => {
-        this.setState({ users: response.data });
-    };
+        customers: []
+    }   
 
     componentDidMount() {
-        fetch('https://reqres.in/api/users').then(this.transformData)
-            .then(this.dataReciever);
+        this.props.firebase.customers().on('value', snapshot => {
+            const customersObject = snapshot.val();
+            const customersList = Object.keys(customersObject).map(key => ({
+                ...customersObject[key],
+                id: key
+            }));
+            this.setState({ customers : customersList})
+        });
+    }
+
+    componentWillUnmount() {
+        this.props.firebase.customers().off();
     }
 
     navigateTo = (to) => {
-        this.props.history.push(`/customer/${to}/`);
+        this.props.history.push(`${ROUTES.CUSTOMER_URLS.customer}${to}`);
     }
 
-    deleteMilkEntry = (id) => {
-        const milk = [...this.state.milk];
-        const index = milk.findIndex(m => m.id === id);
-        milk.splice(index, 1)
-        this.setState({ milk: milk })
+    deleteCustomerEntry = (id) => {
+        const customers = [...this.state.customers];
+        const index = customers.findIndex(m => m.id === id);
+        customers.splice(index, 1)
+        this.setState({ customers: customers })
     }
 
     renderCards = () => (
-        this.state.users.map((user) => (
-            <MyCard key={user.id} {...user} />
+        this.state.customers.map((customer) => (
+            <MyCard key={customer.id} {...customer} />
         ))
     )
 
@@ -44,11 +49,14 @@ class Customer extends Component {
         return (
             <div className="customer-cards">
                 {this.renderCards()}
-                <AddCircleIcon whenClicked={this.navigateTo.bind(this, 'add')} />
+                <AddCircleIcon whenClicked={this.navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
             </div>
         )
     }
 
 }
 
-export default withRouter(Customer);
+export default compose(
+    withRouter,
+    withFirebase
+)(Customer);

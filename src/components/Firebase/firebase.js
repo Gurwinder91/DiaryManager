@@ -15,9 +15,7 @@ const config = {
 export default class Firebase {
     constructor() {
         app.initializeApp(config);
-
         this.auth = app.auth();
-        console.log(app);
         this.db = app.database();
     }
 
@@ -38,4 +36,6 @@ export default class Firebase {
     users = () => this.db.ref('users');
 
     customers = () => this.db.ref(`customers`);
+
+    milks = () => this.db.ref('milks');
 }

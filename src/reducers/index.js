@@ -1,6 +1,9 @@
 import { combineReducers } from 'redux';
-import data from './data';
+import sessionReducer from './session';
+import userReducer from './user';
 
-export default combineReducers({
-    data
+const rootReducer = combineReducers({
+    sessionState: sessionReducer,
+    userState: userReducer
 });
+export default rootReducer;

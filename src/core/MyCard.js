@@ -21,22 +21,27 @@ export const MyCard = (props) => {
             <CardActionArea>
                 <CardMedia
                     component="img"
-                    alt="Contemplative Reptile"
+                    alt="no image"
                     height="140"
-                    image={props.avatar}
-                    title="Contemplative Reptile"
+                    image={props.image}
+                    title="Customer Image"
                 />
             </CardActionArea>
             <CardContent>
                 <Typography gutterBottom variant="h5" component="h2">
-                    {`${props.first_name} ${props.last_name}`}
+                    {`${props.customerName}`}
                 </Typography>
                 <Typography gutterBottom component="h5">
                     {props.email}
                 </Typography>
+                <Typography gutterBottom component="h5">
+                    {props.milkType}
+                </Typography>
+                <Typography gutterBottom component="h5">
+                    {props.phoneNumber}
+                </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                    across all continents except Antarctica
+                    {props.address}
                 </Typography>
             </CardContent>
         </Card>

@@ -1,55 +1,39 @@
 
 import React, { Component, Fragment } from 'react';
 import { withRouter } from "react-router-dom";
+import { compose } from 'recompose';
 
 import { Typography, ListItem, ListItemText, Divider, IconButton } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import { withFirebase } from '../Firebase';
 
 import { MyList, AddCircleIcon, MyConfirmDialog } from '../../core';
 
 class Milk extends Component {
     state = {
-        milk: [
-            {
-                id: 1,
-                milkFat: 5.5,
-                customerName: 'Gurwinder Singh',
-                date: '02/12/2013',
-                time: 'Evening',
-                milkType: 'BM',
-                milk: 5
-            },
-            {
-                id: 2,
-                milkFat: 7.5,
-                customerName: 'Navdeep Kaur',
-                date: '02/12/2013',
-                time: 'Evening',
-                milkType: 'BM',
-                milk: 10
-            },
-            {
-                id: 3,
-                milkFat: 5.5,
-                customerName: 'Gurwinder Singh',
-                date: '02/12/2013',
-                time: 'Morning',
-                milkType: 'BM',
-                milk: 5
-            },
-            {
-                id: 4,
-                milkFat: 7.5,
-                customerName: 'Navdeep Kaur',
-                date: '02/12/2013',
-                time: 'Morning',
-                milkType: 'BM',
-                milk: 10
-            }
-        ],
+        milk: [],
         openConfirmDialog: false,
         selectedMilk: {}
+    }
+
+    componentDidMount() {
+        this.props.firebase.milks().on('value', snapshot => {
+            const milksObject = snapshot.val();
+            let milksList = [];
+            if (milksObject) {
+                milksList = Object.keys(milksObject).map(key => ({
+                    ...milksObject[key],
+                    id: key
+                }));
+            }
+
+            this.setState({ milk: milksList })
+        });
+    }
+
+    componentWillUnmount() {
+        this.props.firebase.milks().off();
     }
 
     navigateTo = (to) => {
@@ -169,7 +153,7 @@ class Milk extends Component {
                     <Typography variant="body1" component="div" color="textPrimary">
                         Are you sure want to remove&nbsp;
                         <Typography variant="h6" component="span">
-                            { this.state.selectedMilk.customerName } 
+                            {this.state.selectedMilk.customerName}
                         </Typography>
                         &nbsp;milk?
                     </Typography>
@@ -181,4 +165,7 @@ class Milk extends Component {
 }
 
 
-export default withRouter(Milk);
+export default compose(
+    withRouter,
+    withFirebase
+)(Milk);

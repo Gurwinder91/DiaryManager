@@ -1,34 +1,40 @@
 
 import React, { Component } from 'react';
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
+import { withRouter } from 'react-router-dom';
 import {
     Typography, MenuItem, Select, FormControlLabel,
     FormControl, FormLabel, RadioGroup, Radio
 } from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
+import { compose } from 'recompose';
 
 import { MyForm, MyInput } from '../../core';
 import { MyFormGroup, MyFormControl, EventHandler } from '../../utilty';
+import { withFirebase } from '../Firebase';
+import * as ROUTES from '../../constants/routes';
 
-export default class MilkForm extends Component {
+const INITIAL_STATE = new MyFormGroup({
+    id: new MyFormControl(2),
+    customerName: new MyFormControl(1),
+    milkType: new MyFormControl('BM'),
+    milk: new MyFormControl(),
+    date: new MyFormControl(Date.now()),
+    time: new MyFormControl('morning'),
+    milkFat: new MyFormControl('', [{ name: 'required', message: 'Milk Fat is required' }])
+});
+
+class MilkForm extends Component {
 
     constructor(props) {
         super(props);
-        this.state = new MyFormGroup({
-            id: new MyFormControl(2),
-            customerName: new MyFormControl(1),
-            milkType: new MyFormControl('BM'),
-            milk: new MyFormControl(5),
-            date: new MyFormControl(Date.now()),
-            time: new MyFormControl('morning'),
-            milkFat: new MyFormControl('', [{ name: 'required', message: 'Milk Fat is required' }])
-        })
+        this.state = { ...INITIAL_STATE };
     }
 
     componentDidMount() {
         if (this.props.milk) {
             const { ...controls } = this.state.populateForm(this.props.milk);
-            this.setState({controls: controls})
+            this.setState({ controls: controls })
         }
     }
 
@@ -43,7 +49,15 @@ export default class MilkForm extends Component {
     }
 
     formSubmitHandler = (event) => {
-        this.state.formSubmit(event).then(console.log)
+        this.state.formSubmit(event)
+            .then(form => {
+                return this.props.firebase.milks().push().set(form);
+            })
+            .then(() => {
+                this.setState({ ...INITIAL_STATE });
+                this.props.history.push(ROUTES.MILK_URLS.milk);
+            })
+            .catch(console.log);
     }
 
     render = () => {
@@ -130,3 +144,8 @@ export default class MilkForm extends Component {
         );
     }
 }
+
+export default compose(
+    withRouter,
+    withFirebase
+)(MilkForm);
