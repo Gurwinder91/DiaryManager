@@ -3,6 +3,7 @@ import { compose } from 'recompose';
 import { connect } from 'react-redux';
 
 import { withFirebase } from '../Firebase';
+import * as ACTIONS from '../../actions';
 
 const withAuthentication = Component => {
     class WithAuthentication extends React.Component {
@@ -16,6 +17,7 @@ const withAuthentication = Component => {
             this.listener = this.props.firebase.auth.onAuthStateChanged(
                 authUser => {
                     localStorage.setItem('authUser', JSON.stringify(authUser));
+                    console.log(authUser);
                     this.props.onSetAuthUser(authUser);
                 },
                 () => {
@@ -36,7 +38,7 @@ const withAuthentication = Component => {
     }
 
     const mapDispatchToProps = dispatch => ({
-        onSetAuthUser: authUser => dispatch({ type: 'AUTH_USER_SET', authUser }),
+        onSetAuthUser: authUser => dispatch({ type: ACTIONS.AUTH_USER_SET, authUser }),
     });
 
     return compose(

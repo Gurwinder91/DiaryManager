@@ -9,14 +9,15 @@ import * as ROUTES from '../../constants/routes';
 import { withFirebase} from '../Firebase';
 import { MyForm, MyInput } from '../../core';
 import {  MyFormGroup, MyFormControl, EventHandler } from '../../utilty';
+import * as ACTIONS from '../../actions';
 
 const SignUpPage = () => (
-    <div>
+    <>
         <Typography variant="h4" align="center">
             Sign Up
         </Typography>
-      <SignUpForm />
-  </div>
+        <SignUpForm />
+    </>
 );
 
 const INITIAL_STATE = new MyFormGroup({
@@ -42,26 +43,29 @@ class SignUpFormBase extends Component {
     const username = this.state.controls.userName.value;
     const email = this.state.controls.email.value;
     const password = this.state.controls.passwordOne.value;
-    
+    let uid;
     this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(authUser => {
-        // Create a user in your Firebase realtime database
+        uid =  authUser.user.uid;
         return this.props.firebase
-          .user(authUser.user.uid)
+          .user(uid)
           .set({
             username,
             email
           });
       })
-      .then((user) => {
-        this.setState({ ...INITIAL_STATE });
+      .then(() => {
+        const user = {
+          [uid]: {
+            username,
+            email
+          }
+        }
         this.props.onUserSignUp(user);
         this.props.history.push(ROUTES.LANDING);
       })
-      .catch(error => {
-        this.setState({ error });
-      });
+      .catch(console.log);
     event.preventDefault();
   }
 
@@ -127,13 +131,14 @@ const SignUpLink = () => (
 );
 
 const mapDispatchToProps = dispatch => ({
-  onUserSignUp: (user) => dispatch({type: 'USER_SET', user})
+  onUserSignUp: (user) => dispatch({type: ACTIONS.USER_SET, user})
 });
 
 const SignUpForm = compose(
     withRouter,
     withFirebase,
-    connect(mapDispatchToProps)
+    connect(null, mapDispatchToProps)
 )(SignUpFormBase);
+
 export default SignUpPage;
 export { SignUpForm, SignUpLink };

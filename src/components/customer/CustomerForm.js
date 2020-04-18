@@ -5,11 +5,13 @@ import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 
 import { withFirebase } from '../Firebase';
 import { MyForm, MyInput } from '../../core';
 import { MyFormControl, MyFormGroup, EventHandler } from '../../utilty';
 import * as ROUTES from '../../constants/routes';
+import * as ACTIONS from '../../actions';
 
 const INITIAL_STATE = new MyFormGroup({
     customerName: new MyFormControl('', [{ name: 'required', message: 'Customer Name is required' }]),
@@ -41,9 +43,15 @@ class CustomerFormBase extends Component {
                 return this.props.firebase.customers().push().set(form);
             })
             .then(() => {
-                this.setState({ ...INITIAL_STATE });
-                this.props.history.push(ROUTES.CUSTOMER_URLS.customer);
+                const customer = {
+                    'sfsdfsfsdfs': {
+                        customerName: 'dsada',
+                        phoneNumber: 'dadsad'
+                    }
+                }
+                return this.props.onCustomerChange(customer)
             })
+            .then(() => this.props.history.push(ROUTES.CUSTOMER_URLS.customer))
             .catch(console.log);
     }
 
@@ -146,9 +154,14 @@ class CustomerFormBase extends Component {
 
 }
 
+const mapDispatchToProps = dispatch => ({
+    onCustomerChange: (customer) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer })
+});
+
 const CustomerForm = compose(
     withRouter,
-    withFirebase
+    withFirebase,
+    connect(null, mapDispatchToProps),
 )(CustomerFormBase);
 
 export default CustomerForm;

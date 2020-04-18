@@ -6,6 +6,7 @@ import { List, Typography } from '@material-ui/core';
 import { withFirebase } from '../Firebase';
 import { MyConfirmDialog } from '../../core';
 import UserList from './UserList';
+import * as ACTIONS from '../../actions';
 
 const INITIAL_STATE = {
     selectedUser: {},
@@ -90,8 +91,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    onSetUsers: users => dispatch({ type: 'USERS_SET', users }),
-    onRemoveUsers: uid => dispatch({ type: 'USER_REMOVE', uid })
+    onSetUsers: users => dispatch({ type: ACTIONS.USERS_SET, users }),
+    onRemoveUsers: uid => dispatch({ type: ACTIONS.USER_REMOVE, uid })
 });
 
 export default compose(

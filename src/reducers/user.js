@@ -1,5 +1,7 @@
+import * as ACTIONS from '../actions';
+
 const INITIAL_STATE = {
-    users: null,
+    users: [],
 };
 
 const applySetUsers = (state, action) => ({
@@ -28,13 +30,13 @@ const removeUser = (items, key) => {
 
 function userReducer(state = INITIAL_STATE, action) {
     switch (action.type) {
-        case 'USERS_SET': {
+        case ACTIONS.USERS_SET: {
             return applySetUsers(state, action);
         }
-        case 'USER_SET': {
+        case ACTIONS.USER_SET: {
             return applySetUser(state, action);
         }
-        case 'USER_REMOVE': {
+        case ACTIONS.USER_REMOVE: {
             return applyRemoveUser(state, action);
         }
         default:

@@ -1,26 +1,19 @@
 import React, { Component } from "react";
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 
 import { withFirebase } from '../Firebase';
 import { MyCard, AddCircleIcon } from '../../core';
 import "./Customer.scss";
 import * as ROUTES from '../../constants/routes';
+import * as ACTIONS from '../../actions';
 
 class Customer extends Component {
 
-    state = {
-        customers: []
-    }   
-
     componentDidMount() {
         this.props.firebase.customers().on('value', snapshot => {
-            const customersObject = snapshot.val();
-            const customersList = Object.keys(customersObject).map(key => ({
-                ...customersObject[key],
-                id: key
-            }));
-            this.setState({ customers : customersList})
+            this.props.onSetCustomers(snapshot.val());
         });
     }
 
@@ -33,15 +26,15 @@ class Customer extends Component {
     }
 
     deleteCustomerEntry = (id) => {
-        const customers = [...this.state.customers];
+        const customers = [...this.props.customers];
         const index = customers.findIndex(m => m.id === id);
         customers.splice(index, 1)
         this.setState({ customers: customers })
     }
 
     renderCards = () => (
-        this.state.customers.map((customer) => (
-            <MyCard key={customer.id} {...customer} />
+        this.props.customers.map((customer) => (
+            <MyCard key={customer.uid} {...customer} />
         ))
     )
 
@@ -56,7 +49,21 @@ class Customer extends Component {
 
 }
 
+const mapStateToProps = state => ({
+    customers: Object.keys(state.customerState.customers || {}).map(key => ({
+        ...state.customerState.customers[key],
+        uid: key,
+    })),
+})
+
+const mapDispatchToProps = dispatch => ({
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers })
+})
+
 export default compose(
     withRouter,
-    withFirebase
+    withFirebase,
+    connect(
+        mapStateToProps,
+        mapDispatchToProps)
 )(Customer);
