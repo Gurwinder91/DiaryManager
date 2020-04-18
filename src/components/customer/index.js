@@ -1,20 +1,27 @@
 import React, { Component } from "react";
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
-import { connect } from 'react-redux';
+import { connect } from 'react-redux'
 
 import { withFirebase } from '../Firebase';
-import { MyCard, AddCircleIcon } from '../../core';
-import "./Customer.scss";
+import { AddCircleIcon, MyList, MyListSkeleton } from '../../core';
 import * as ROUTES from '../../constants/routes';
 import * as ACTIONS from '../../actions';
+import { MyObject } from '../../utilty';
+import AddCustomer from './add-customer';
+import EditCustomer from './edit-customer';
+import CustomersList from './customers-list';
 
-class Customer extends Component {
-
+class CustomerBase extends Component {
+    state = {
+        loading: true
+    }
     componentDidMount() {
         this.props.firebase.customers().on('value', snapshot => {
             this.props.onSetCustomers(snapshot.val());
-        });
+            this.setState({ loading: false })
+        },
+            () => this.setState({ loading: false }));
     }
 
     componentWillUnmount() {
@@ -32,38 +39,34 @@ class Customer extends Component {
         this.setState({ customers: customers })
     }
 
-    renderCards = () => (
-        this.props.customers.map((customer) => (
-            <MyCard key={customer.uid} {...customer} />
-        ))
-    )
-
     render() {
         return (
-            <div className="customer-cards">
-                {this.renderCards()}
-                <AddCircleIcon whenClicked={this.navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
-            </div>
+            this.state.loading ?
+                <MyListSkeleton /> :
+                <>
+                    <MyList>
+                        <CustomersList customers={this.props.customers} />
+                    </MyList>
+                    <AddCircleIcon whenClicked={this.navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
+                </>
         )
     }
-
 }
 
 const mapStateToProps = state => ({
-    customers: Object.keys(state.customerState.customers || {}).map(key => ({
-        ...state.customerState.customers[key],
-        uid: key,
-    })),
+    customers: new MyObject(state.customerState.customers).toArray(),
 })
 
 const mapDispatchToProps = dispatch => ({
     onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers })
 })
 
-export default compose(
+const Customer = compose(
     withRouter,
     withFirebase,
     connect(
         mapStateToProps,
         mapDispatchToProps)
-)(Customer);
+)(CustomerBase);
+
+export { Customer, AddCustomer, EditCustomer }

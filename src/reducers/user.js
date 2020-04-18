@@ -1,7 +1,7 @@
 import * as ACTIONS from '../actions';
 
 const INITIAL_STATE = {
-    users: [],
+    users: null,
 };
 
 const applySetUsers = (state, action) => ({

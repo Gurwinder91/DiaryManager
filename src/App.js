@@ -4,9 +4,9 @@ import { Toolbar } from '@material-ui/core';
 
 import "./App.scss";
 
-import Header from "./components/header/Header";
-import Main from "./components/main/Main";
-import { withAuthentication } from './components/Session';
+import Header from "./components/header";
+import Main from "./components/main";
+import { withAuthentication } from './components/session';
 import { MySwipeableDrawer } from "./core";
 
 export class App extends Component {

@@ -1,7 +1,7 @@
 import * as ACTIONS from '../actions';
 
 const INITIAL_STATE = {
-    milks: [],
+    milks: null,
 };
 
 const applySetMilks = (state, action) => ({

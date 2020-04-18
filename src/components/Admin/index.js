@@ -5,8 +5,9 @@ import { List, Typography } from '@material-ui/core';
 
 import { withFirebase } from '../Firebase';
 import { MyConfirmDialog } from '../../core';
-import UserList from './UserList';
+import UsersList from './userslist';
 import * as ACTIONS from '../../actions';
+import { MyObject } from '../../utilty';
 
 const INITIAL_STATE = {
     selectedUser: {},
@@ -56,7 +57,7 @@ class AdminPage extends Component {
                 </Typography>
                 <List>
                     {this.props.users.length ?
-                        <UserList users={this.props.users} deleteUser={this.deleteUserActionHandler} />
+                        <UsersList users={this.props.users} deleteUser={this.deleteUserActionHandler} />
                         : <Typography variant="body1" align="center">
                             No users found
                         </Typography>
@@ -84,10 +85,7 @@ class AdminPage extends Component {
 
 
 const mapStateToProps = state => ({
-    users: Object.keys(state.userState.users || {}).map(key => ({
-        ...state.userState.users[key],
-        uid: key,
-    })),
+    users: new MyObject(state.userState.users).toArray()
 });
 
 const mapDispatchToProps = dispatch => ({

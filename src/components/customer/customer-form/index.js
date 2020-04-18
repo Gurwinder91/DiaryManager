@@ -7,11 +7,11 @@ import DateFnsUtils from '@date-io/date-fns';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 
-import { withFirebase } from '../Firebase';
-import { MyForm, MyInput } from '../../core';
-import { MyFormControl, MyFormGroup, EventHandler } from '../../utilty';
-import * as ROUTES from '../../constants/routes';
-import * as ACTIONS from '../../actions';
+import { withFirebase } from '../../Firebase';
+import { MyForm, MyInput } from '../../../core';
+import { MyFormControl, MyFormGroup, EventHandler } from '../../../utilty';
+import * as ROUTES from '../../../constants/routes';
+import * as ACTIONS from '../../../actions';
 
 const INITIAL_STATE = new MyFormGroup({
     customerName: new MyFormControl('', [{ name: 'required', message: 'Customer Name is required' }]),

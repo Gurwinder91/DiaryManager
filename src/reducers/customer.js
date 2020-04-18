@@ -1,7 +1,7 @@
 import * as ACTIONS from '../actions';
 
 const INITIAL_STATE = {
-    customers: [],
+    customers: null
 };
 
 const applySetCustomers = (state, action) => ({

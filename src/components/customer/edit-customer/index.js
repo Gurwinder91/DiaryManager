@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Typography } from '@material-ui/core';
 
-import CustomerForm from './CustomerForm';
+import CustomerForm from '../customer-form';
 
 export default class EditCustomer extends Component {
     state = {

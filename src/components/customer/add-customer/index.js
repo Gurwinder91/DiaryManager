@@ -2,7 +2,7 @@ import 'date-fns';
 import React from "react";
 import { Typography } from '@material-ui/core';
 
-import CustomerForm from './CustomerForm';
+import CustomerForm from '../customer-form';
 
 const AddCustomer = (props) => {
     return (
