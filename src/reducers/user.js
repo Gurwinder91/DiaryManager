@@ -1,4 +1,5 @@
 import * as ACTIONS from '../actions';
+import { MyObject } from '../utilty';
 
 const INITIAL_STATE = {
     users: null,
@@ -19,14 +20,8 @@ const applySetUser = (state, action) => ({
 
 const applyRemoveUser = (state, action) => ({
     ...state,
-    users: removeUser(state.users, action.uid),
+    users: new MyObject(state.users).removeObject(action.uid),
 });
-
-const removeUser = (items, key) => {
-    const newItems = { ...items };
-    delete newItems[key];
-    return newItems;
-}
 
 function userReducer(state = INITIAL_STATE, action) {
     switch (action.type) {

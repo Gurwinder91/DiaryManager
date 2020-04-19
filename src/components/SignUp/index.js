@@ -43,26 +43,19 @@ class SignUpFormBase extends Component {
     const username = this.state.controls.userName.value;
     const email = this.state.controls.email.value;
     const password = this.state.controls.passwordOne.value;
-    let uid;
+  
     this.props.firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(authUser => {
-        uid =  authUser.user.uid;
-        return this.props.firebase
-          .user(uid)
-          .set({
-            username,
-            email
-          });
+        const JSON = {
+          username,
+          email
+        };
+        this.props.firebase.users().child(authUser.user.uid).set(JSON)
+         return [JSON, authUser.user.uid];
       })
-      .then(() => {
-        const user = {
-          [uid]: {
-            username,
-            email
-          }
-        }
-        this.props.onUserSignUp(user);
+      .then((output) => {
+        this.props.onUserSignUp(output[0], output[1]);
         this.props.history.push(ROUTES.LANDING);
       })
       .catch(console.log);
@@ -131,7 +124,7 @@ const SignUpLink = () => (
 );
 
 const mapDispatchToProps = dispatch => ({
-  onUserSignUp: (user) => dispatch({type: ACTIONS.USER_SET, user})
+  onUserSignUp: (user, uid) => dispatch({type: ACTIONS.USER_SET, user, uid})
 });
 
 const SignUpForm = compose(

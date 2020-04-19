@@ -4,11 +4,8 @@ import { Route } from 'react-router-dom';
 import { Container } from '@material-ui/core';
 
 import './style.scss';
-import Table from "../table/Table";
 import { Customer, AddCustomer, EditCustomer } from "../customer";
-import AddMilk from '../milk/AddMilk';
-import Milk from '../milk/Milk';
-import EditMilk from '../milk/EditMilk';
+import { Milk, AddMilk, EditMilk } from '../Milk';
 import Footer from '../footer';
 
 import * as ROUTES from '../../constants/routes';
@@ -29,13 +26,12 @@ class Main extends Component {
                 <Route path={ROUTES.SIGN_UP} exact component={SignUpPage} />
                 <Route path={ROUTES.SIGN_IN} exact component={SignInPage} />
                 <Route path={ROUTES.ADMIN} exact component={AdminPage} />
-                <Route path={ROUTES.TABLE} exact component={Table} />
                 <Route path={ROUTES.CUSTOMER_URLS.customer} exact component={Customer} />
                 <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.add}`} exact component={AddCustomer} />
-                <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}`} exact component={EditCustomer} />
+                <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}:uid`} exact component={EditCustomer} />
                 <Route path={ROUTES.MILK_URLS.milk} exact component={Milk} />
                 <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`} exact component={AddMilk} />
-                <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}`} exact component={EditMilk} />
+                <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}:uid`} exact component={EditMilk} />
                 <Footer />
             </Container>
         );

@@ -15,11 +15,11 @@ import * as ACTIONS from '../../../actions';
 
 const INITIAL_STATE = new MyFormGroup({
     customerName: new MyFormControl('', [{ name: 'required', message: 'Customer Name is required' }]),
+    phoneNumber: new MyFormControl('', [{ name: 'required', message: 'Phone Number is required' }]),
     address: new MyFormControl('', [{ name: 'required', message: 'Address is required' }]),
-    email: new MyFormControl('', [{ name: 'email', message: 'Email is not valid' }]),
     milkType: new MyFormControl('BM'),
     dateofbirth: new MyFormControl(Date.now()),
-    phoneNumber: new MyFormControl('', [{ name: 'required', message: 'Phone Number is required' }]),
+    registeredDate: new MyFormControl(Date.now()),
     mode: new MyFormControl(true)
 });
 
@@ -40,16 +40,18 @@ class CustomerFormBase extends Component {
     formSubmitHandler = (event) => {
         this.state.formSubmit(event)
             .then(form => {
-                return this.props.firebase.customers().push().set(form);
-            })
-            .then(() => {
-                const customer = {
-                    'sfsdfsfsdfs': {
-                        customerName: 'dsada',
-                        phoneNumber: 'dadsad'
-                    }
+                let key;
+                if (this.props.uid) {
+                    key = this.props.uid;
+                    this.props.firebase.customers().child(key).update(form);
+                } else {
+                    key = this.props.firebase.customers().push().key;
+                    this.props.firebase.customers().child(key).set(form);
                 }
-                return this.props.onCustomerChange(customer)
+                return [form, key];
+            })
+            .then((output) => {
+                return this.props.onCustomerChange(output[0], output[1]);
             })
             .then(() => this.props.history.push(ROUTES.CUSTOMER_URLS.customer))
             .catch(console.log);
@@ -79,6 +81,20 @@ class CustomerFormBase extends Component {
                     onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
                     style={{ width: '100%' }}
                 />
+
+                <MyInput
+                    id="phone-number"
+                    type="number"
+                    required
+                    name="phoneNumber"
+                    label="Phone Number"
+                    value={this.state.controls.phoneNumber.value}
+                    onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
+                    style={{ width: '100%' }}
+                    error={this.state.showError('phoneNumber')}
+                    helperText={this.state.showErrorText('phoneNumber')}
+                />
+
                 <MyInput
                     required
                     id="address"
@@ -90,16 +106,7 @@ class CustomerFormBase extends Component {
                     error={this.state.showError('address')}
                     helperText={this.state.showErrorText('address')}
                 />
-                <MyInput
-                    id="email"
-                    name="email"
-                    label="Email"
-                    value={this.state.controls.email.value}
-                    onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
-                    style={{ width: '100%' }}
-                    error={this.state.showError('email')}
-                    helperText={this.state.showErrorText('email')}
-                />
+
                 <Select
                     style={{ width: '100%', marginTop: '10px' }}
                     labelId="Milk Type"
@@ -117,27 +124,27 @@ class CustomerFormBase extends Component {
                         disableFuture
                         autoOk
                         style={{ width: '100%' }}
+                        id="registered-date"
+                        label="Date of Registration"
+                        name="registeredDate"
+                        format="MM/dd/yyyy"
+                        value={this.state.controls.registeredDate.value}
+                        onChange={this.dateChangeHandler.bind(null, 'registeredDate')}
+                    />
+                </MuiPickersUtilsProvider>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <DatePicker
+                        disableFuture
+                        autoOk
+                        style={{ width: '100%' }}
                         id="date-of-birth"
                         label="Date of Birth"
                         name="dateofbirth"
                         format="MM/dd/yyyy"
                         value={this.state.controls.dateofbirth.value}
-                        onChange={this.dateChangeHandler}
+                        onChange={this.dateChangeHandler.bind(null, 'dateofbirth')}
                     />
                 </MuiPickersUtilsProvider>
-
-                <MyInput
-                    id="phone-number"
-                    type="number"
-                    required
-                    name="phoneNumber"
-                    label="Phone Number"
-                    value={this.state.controls.phoneNumber.value}
-                    onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
-                    style={{ width: '100%' }}
-                    error={this.state.showError('phoneNumber')}
-                    helperText={this.state.showErrorText('phoneNumber')}
-                />
 
                 <FormControlLabel
                     control={<Switch
@@ -155,7 +162,7 @@ class CustomerFormBase extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-    onCustomerChange: (customer) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer })
+    onCustomerChange: (customer, uid) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer, uid })
 });
 
 const CustomerForm = compose(

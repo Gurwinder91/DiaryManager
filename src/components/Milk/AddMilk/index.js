@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import MilkForm from './MilkForm'; 
+import MilkForm from '../MilkForm'; 
 
 export default class AddMilk extends Component {
 

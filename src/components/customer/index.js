@@ -32,20 +32,18 @@ class CustomerBase extends Component {
         this.props.history.push(`${ROUTES.CUSTOMER_URLS.customer}${to}`);
     }
 
-    deleteCustomerEntry = (id) => {
-        const customers = [...this.props.customers];
-        const index = customers.findIndex(m => m.id === id);
-        customers.splice(index, 1)
-        this.setState({ customers: customers })
-    }
-
     render() {
         return (
             this.state.loading ?
                 <MyListSkeleton /> :
                 <>
                     <MyList>
-                        <CustomersList customers={this.props.customers} />
+                        <CustomersList 
+                            customers={this.props.customers}
+                            onRemoveCustomer={this.props.onRemoveCustomer}
+                            firebase={this.props.firebase}
+                            history={this.props.history}
+                            />
                     </MyList>
                     <AddCircleIcon whenClicked={this.navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
                 </>
@@ -58,7 +56,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers })
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
+    onRemoveCustomer: (uid) => dispatch({ type: ACTIONS.CUSTOMER_REMOVE, uid }),
 })
 
 const Customer = compose(
@@ -69,4 +68,4 @@ const Customer = compose(
         mapDispatchToProps)
 )(CustomerBase);
 
-export { Customer, AddCustomer, EditCustomer }
+export { Customer, AddCustomer, EditCustomer };

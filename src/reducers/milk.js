@@ -1,4 +1,5 @@
 import * as ACTIONS from '../actions';
+import { MyObject } from '../utilty';
 
 const INITIAL_STATE = {
     milks: null,
@@ -19,14 +20,8 @@ const applySetMilk = (state, action) => ({
 
 const applyRemoveMilk = (state, action) => ({
     ...state,
-    milks: removeUser(state.milks, action.uid),
+    milks: new MyObject(state.milks).removeObject(action.uid),
 });
-
-const removeUser = (items, key) => {
-    const newItems = { ...items };
-    delete newItems[key];
-    return newItems;
-}
 
 function milkReducer(state = INITIAL_STATE, action) {
     switch (action.type) {

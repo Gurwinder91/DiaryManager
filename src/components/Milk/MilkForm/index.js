@@ -8,15 +8,17 @@ import {
 } from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 
-import { MyForm, MyInput } from '../../core';
-import { MyFormGroup, MyFormControl, EventHandler } from '../../utilty';
-import { withFirebase } from '../Firebase';
-import * as ROUTES from '../../constants/routes';
+import { MyForm, MyInput } from '../../../core';
+import { MyFormGroup, MyFormControl, EventHandler, MyObject } from '../../../utilty';
+import { withFirebase } from '../../Firebase';
+import * as ROUTES from '../../../constants/routes';
+import * as ACTIONS from '../../../actions';
 
 const INITIAL_STATE = new MyFormGroup({
     id: new MyFormControl(2),
-    customerName: new MyFormControl(1),
+    customerName: new MyFormControl(),
     milkType: new MyFormControl('BM'),
     milk: new MyFormControl(),
     date: new MyFormControl(Date.now()),
@@ -36,6 +38,14 @@ class MilkForm extends Component {
             const { ...controls } = this.state.populateForm(this.props.milk);
             this.setState({ controls: controls })
         }
+
+        this.props.firebase.customers().on('value', snapshot => {
+            this.props.onSetCustomers(snapshot.val())
+        });
+    }
+
+    componentWillUnmount() {
+        this.props.firebase.customers().off();
     }
 
     inputChangeHandler = (event) => {
@@ -51,7 +61,10 @@ class MilkForm extends Component {
     formSubmitHandler = (event) => {
         this.state.formSubmit(event)
             .then(form => {
-                return this.props.firebase.milks().push().set(form);
+                 this.props.firebase.milks()
+                    .child(form.date)
+                        .child(form.time)
+                            .child(form.milkType).set(form);
             })
             .then(() => {
                 this.setState({ ...INITIAL_STATE });
@@ -70,16 +83,14 @@ class MilkForm extends Component {
                     <Select
                         style={{ width: '100%', marginTop: '10px' }}
                         labelId="customerName"
-                        id="customer-name"
+                        id="customer-name"  
                         name="customerName"
                         value={this.state.controls.customerName.value}
                         onChange={this.inputChangeHandler}
                     >
-                        <MenuItem value="1">Gurwinder Singh</MenuItem>
-                        <MenuItem value="2">Navdeep Kaur</MenuItem>
-                        <MenuItem value="3">Rohit Rana</MenuItem>
-                        <MenuItem value="4">Honey</MenuItem>
-                        <MenuItem value="5">Amar</MenuItem>
+                        {this.props.customers.map(customer =>
+                            <MenuItem key={customer.uid} value={customer.customerName}>{customer.customerName}</MenuItem>
+                        )}
                     </Select>
                     <Select
                         style={{ width: '100%', marginTop: '10px' }}
@@ -135,8 +146,8 @@ class MilkForm extends Component {
                         <FormLabel component="legend">Time</FormLabel>
                         <RadioGroup aria-label="time" name="time" style={{ flexDirection: 'row' }}
                             value={this.state.controls.time.value} onChange={this.inputChangeHandler}>
-                            <FormControlLabel value="morning" control={<Radio />} label="Morning" />
-                            <FormControlLabel value="evening" control={<Radio />} label="Evening" />
+                            <FormControlLabel value="Morning" control={<Radio />} label="Morning" />
+                            <FormControlLabel value="Evening" control={<Radio />} label="Evening" />
                         </RadioGroup>
                     </FormControl>
                 </MyForm>
@@ -145,7 +156,16 @@ class MilkForm extends Component {
     }
 }
 
+const mapStateToProps = state => ({
+    customers: new MyObject(state.customerState.customers).toArray(),
+})
+const mapDispatchToProps = dispatch => ({
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
+    onSetMilk: (milk) => dispatch({ type: ACTIONS.MILK_SET, milk }),
+})
+
 export default compose(
     withRouter,
-    withFirebase
+    withFirebase,
+    connect(mapStateToProps, mapDispatchToProps)
 )(MilkForm);

@@ -1,7 +1,8 @@
 import * as ACTIONS from '../actions';
+import { MyObject } from '../utilty';
 
 const INITIAL_STATE = {
-    customers: null
+    customers: {}
 };
 
 const applySetCustomers = (state, action) => ({
@@ -14,19 +15,14 @@ const applySetCustomer = (state, action) => ({
     customers: {
         ...state.customers,
         [action.uid]: action.customer,
-    },
+    }
 });
 
 const applyRemoveCustomer = (state, action) => ({
     ...state,
-    customers: removeUser(state.customers, action.uid),
+    customers: new MyObject(state.customers).removeObject(action.uid),
 });
 
-const removeUser = (items, key) => {
-    const newItems = { ...items };
-    delete newItems[key];
-    return newItems;
-}
 
 function customerReducer(state = INITIAL_STATE, action) {
     switch (action.type) {

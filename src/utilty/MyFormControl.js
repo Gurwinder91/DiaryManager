@@ -5,7 +5,5 @@ export class MyFormControl {
     constructor(value = '', validators = []) {
         this.value = value;
         this.validators = validators;
-        if (validators.length)
-            this.invalid = true;
     }
 }
