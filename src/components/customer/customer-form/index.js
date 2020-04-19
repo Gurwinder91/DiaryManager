@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { withRouter } from 'react-router-dom';
 import { Select, MenuItem, Switch, FormControlLabel } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
@@ -6,169 +6,166 @@ import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
+import { useForm } from 'react-hook-form'
 
 import { withFirebase } from '../../Firebase';
 import { MyForm, MyInput } from '../../../core';
-import { MyFormControl, MyFormGroup, EventHandler } from '../../../utilty';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 
-const INITIAL_STATE = new MyFormGroup({
-    customerName: new MyFormControl('', [{ name: 'required', message: 'Customer Name is required' }]),
-    phoneNumber: new MyFormControl('', [{ name: 'required', message: 'Phone Number is required' }]),
-    address: new MyFormControl('', [{ name: 'required', message: 'Address is required' }]),
-    milkType: new MyFormControl('BM'),
-    dateofbirth: new MyFormControl(Date.now()),
-    registeredDate: new MyFormControl(Date.now()),
-    mode: new MyFormControl(true)
-});
+const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) => {
+    const { register, handleSubmit, errors, watch, setValue } = useForm();
+    const [milkType, setMilkType] = React.useState('BM');
+    const [dateofbirth, setDateofbirth] = React.useState(Date.now());
+    const [registeredDate, setRegisteredDate] = React.useState(Date.now());
 
-class CustomerFormBase extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { ...INITIAL_STATE };
+    const handleMilkType = option => {
+        const value = option.target.value;
+        setValue("milkType", value);
+        setMilkType(value);
     }
 
+    const handleDate = (name, date) => {
+        const milliSeconds = date.getTime();
+        setValue(name, milliSeconds);
+        if (name === 'dateofbirth')
+            setDateofbirth(milliSeconds);
+        else
+            setRegisteredDate(milliSeconds);
+    }
 
-    componentDidMount() {
-        if (this.props.customer) {
-            const { ...controls } = this.state.populateForm(this.props.customer);
-            this.setState({ controls: controls });
+    const updateValues = () => {
+        setValue('milkType', customer.milkType);
+        setValue('dateofbirth', customer.dateofbirth);
+        setValue('registeredDate', customer.registeredDate);
+
+        setMilkType(customer.milkType);
+        setDateofbirth(customer.dateofbirth);
+        setRegisteredDate(customer.registeredDate);
+    }
+
+    React.useEffect(() => {
+        register({ name: "milkType" });
+        register({ name: "dateofbirth" });
+        register({ name: "registeredDate" });
+        console.log(register({ name: "milkType" }));
+        updateValues();
+    }, [register])
+
+    const saveCustomer = (data) => {
+        data.customerName = data.customerName.charAt(0).toUpperCase() + data.customerName.slice(1);
+        let promise;
+        let key;
+        if (uid) {
+            key = uid;
+            promise = firebase.customers().child(key).update(data);
+
+        } else {
+            key = firebase.customers().push().key;
+            promise = firebase.customers().child(key).set(data);
         }
+        return promise.then(() => key);
     }
 
-    formSubmitHandler = (event) => {
-        this.state.formSubmit(event)
-            .then(form => {
-                let key;
-                if (this.props.uid) {
-                    key = this.props.uid;
-                    this.props.firebase.customers().child(key).update(form);
-                } else {
-                    key = this.props.firebase.customers().push().key;
-                    this.props.firebase.customers().child(key).set(form);
-                }
-                return [form, key];
+    const onSubmit = (data) => {
+        saveCustomer(data)
+            .then((key) => {
+                return onCustomerChange(data, key);
             })
-            .then((output) => {
-                return this.props.onCustomerChange(output[0], output[1]);
-            })
-            .then(() => this.props.history.push(ROUTES.CUSTOMER_URLS.customer))
+            .then(() => history.push(ROUTES.CUSTOMER_URLS.customer))
             .catch(console.log);
     }
 
-    inputChangeHandler = (event) => {
-        const formGroup = this.state.inputChangeHandler(event);
-        this.setState({ controls: formGroup.controls, invalid: formGroup.invalid });
-    }
+    return (
+        <MyForm onSubmit={handleSubmit(onSubmit)}>
+            <MyInput
+                required
+                name="customerName"
+                label="Customer Name"
+                style={{ width: '100%' }}
+                defaultValue={customer.customerName}
+                inputRef={register({ required: true })}
+                error={!!errors.customerName}
+                helperText={errors.customerName && 'This field is required'}
+            />
 
-    dateChangeHandler = (name, date) => {
-        const formGroup = this.state.dateChangeHandler(name, date);
-        this.setState({ controls: formGroup.controls, invalid: formGroup.invalid });
-    }
+            <MyInput
+                type="number"
+                required
+                name="phoneNumber"
+                label="Phone Number"
+                style={{ width: '100%' }}
+                defaultValue={customer.phoneNumber}
+                inputRef={register({ required: true })}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber && 'This field is required'}
+            />
 
-    render = () => {
-        return (
-            <MyForm formSubmit={this.formSubmitHandler} disabled={this.state.invalid}>
-                <MyInput
-                    required
-                    error={this.state.showError('customerName')}
-                    helperText={this.state.showErrorText('customerName')}
-                    id="customer-name"
-                    name="customerName"
-                    label="Customer Name"
-                    value={this.state.controls.customerName.value}
-                    onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
+            <MyInput
+                required
+                name="address"
+                label="Address"
+                style={{ width: '100%' }}
+                defaultValue={customer.address}
+                inputRef={register({ required: true })}
+                error={!!errors.address}
+                helperText={errors.address && 'This field is required'}
+            />
+
+            <Select
+                style={{ width: '100%', marginTop: '10px' }}
+                labelId="Milk Type"
+                name="milkType"
+                value={milkType}
+                onChange={handleMilkType}
+            >
+                <MenuItem value="BM">BM</MenuItem>
+                <MenuItem value="CM">CM</MenuItem>
+                <MenuItem value="BOTH">Both</MenuItem>
+            </Select>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <DatePicker
+                    disableFuture
+                    autoOk
                     style={{ width: '100%' }}
+                    label="Date of Registration"
+                    name="registeredDate"
+                    format="MM/dd/yyyy"
+                    value={registeredDate}
+                    onChange={handleDate.bind(this, 'registeredDate')}
                 />
-
-                <MyInput
-                    id="phone-number"
-                    type="number"
-                    required
-                    name="phoneNumber"
-                    label="Phone Number"
-                    value={this.state.controls.phoneNumber.value}
-                    onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
+            </MuiPickersUtilsProvider>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <DatePicker
+                    disableFuture
+                    autoOk
                     style={{ width: '100%' }}
-                    error={this.state.showError('phoneNumber')}
-                    helperText={this.state.showErrorText('phoneNumber')}
+                    label="Date of Birth"
+                    name="dateofbirth"
+                    format="MM/dd/yyyy"
+                    value={dateofbirth}
+                    onChange={handleDate.bind(this, 'dateofbirth')}
                 />
+            </MuiPickersUtilsProvider>
 
-                <MyInput
-                    required
-                    id="address"
-                    name="address"
-                    label="Address"
-                    value={this.state.controls.address.value}
-                    onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
-                    style={{ width: '100%' }}
-                    error={this.state.showError('address')}
-                    helperText={this.state.showErrorText('address')}
-                />
-
-                <Select
-                    style={{ width: '100%', marginTop: '10px' }}
-                    labelId="Milk Type"
-                    id="milk-type"
-                    name="milkType"
-                    value={this.state.controls.milkType.value}
-                    onChange={this.inputChangeHandler}
-                >
-                    <MenuItem value="BM">BM</MenuItem>
-                    <MenuItem value="CM">CM</MenuItem>
-                    <MenuItem value="BOTH">Both</MenuItem>
-                </Select>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <DatePicker
-                        disableFuture
-                        autoOk
-                        style={{ width: '100%' }}
-                        id="registered-date"
-                        label="Date of Registration"
-                        name="registeredDate"
-                        format="MM/dd/yyyy"
-                        value={this.state.controls.registeredDate.value}
-                        onChange={this.dateChangeHandler.bind(null, 'registeredDate')}
-                    />
-                </MuiPickersUtilsProvider>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <DatePicker
-                        disableFuture
-                        autoOk
-                        style={{ width: '100%' }}
-                        id="date-of-birth"
-                        label="Date of Birth"
-                        name="dateofbirth"
-                        format="MM/dd/yyyy"
-                        value={this.state.controls.dateofbirth.value}
-                        onChange={this.dateChangeHandler.bind(null, 'dateofbirth')}
-                    />
-                </MuiPickersUtilsProvider>
-
-                <FormControlLabel
-                    control={<Switch
-                        checked={this.state.controls.mode.value}
-                        onChange={this.inputChangeHandler}
-                        id="mode"
-                        name="mode"
-                    />}
-                    label={this.state.controls.mode.value ? "Sell milk from home" : "Sell milk in diary"}
-                />
-            </MyForm>
-        );
-    }
-
+            <FormControlLabel
+                control={<Switch
+                    inputRef={register}
+                    name="mode"
+                    defaultValue={customer.mode}
+                />}
+                label={watch('mode') ? "Sell milk from home" : "Sell milk in diary"}
+            />
+        </MyForm>
+    );
 }
 
 const mapDispatchToProps = dispatch => ({
     onCustomerChange: (customer, uid) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer, uid })
 });
 
-const CustomerForm = compose(
+export default compose(
     withRouter,
     withFirebase,
     connect(null, mapDispatchToProps),
-)(CustomerFormBase);
-
-export default CustomerForm;
+)(CustomerForm);

@@ -31,7 +31,7 @@ export function MyForm(props) {
 
     return (
         <form autoComplete="off" noValidate
-            onSubmit={props.formSubmit.bind(this)} className={classes.form}>
+            onSubmit={props.onSubmit.bind(this)} className={classes.form}>
             <div className={classes.formContainer}>
                 {props.children}
                 <Button variant="contained" color="primary" type="submit" disabled={props.disabled}>

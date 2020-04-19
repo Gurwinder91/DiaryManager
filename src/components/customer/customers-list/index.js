@@ -46,7 +46,7 @@ export default ({ customers, history, firebase, onRemoveCustomer }) => {
                                 className={classes.largeAvatar} >
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText
+                        <ListItemText className={classes.listItemText}
                             primary={
                                 <Typography
                                     component="span"
