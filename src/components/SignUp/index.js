@@ -1,14 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link , withRouter} from 'react-router-dom';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
-
+import { useForm } from 'react-hook-form';
 import { Typography} from '@material-ui/core';
 
 import * as ROUTES from '../../constants/routes';
 import { withFirebase} from '../Firebase';
 import { MyForm, MyInput } from '../../core';
-import {  MyFormGroup, MyFormControl, EventHandler } from '../../utilty';
 import * as ACTIONS from '../../actions';
 
 const SignUpPage = () => (
@@ -20,107 +19,122 @@ const SignUpPage = () => (
     </>
 );
 
-const INITIAL_STATE = new MyFormGroup({
-    userName: new MyFormControl('', [{ name: 'required', message: 'User Name is required' }]),
-    email: new MyFormControl('', [{ name: 'email', message: 'Email is not valid' }]),
-    passwordOne: new MyFormControl('', [{ name: 'required', message: 'Password is required' }]),
-    passwordTwo: new MyFormControl('', [{ name: 'required', message: 'Password is required' }])
-});
+const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
+  const { register, handleSubmit, errors, watch } = useForm();
 
-class SignUpFormBase extends Component {
- 
-    constructor(props){
-        super(props);
-        this.state = {...INITIAL_STATE};
-    }
-
-    inputChangeHandler = (event) => {
-        const formGroup = this.state.inputChangeHandler(event);
-        this.setState({ controls: formGroup.controls, invalid: formGroup.invalid });
-    }
-
-    formSubmitHandler = event => {
-    const username = this.state.controls.userName.value;
-    const email = this.state.controls.email.value;
-    const password = this.state.controls.passwordOne.value;
-  
-    this.props.firebase
-      .doCreateUserWithEmailAndPassword(email, password)
+  const onSubmit = (data) => {
+    console.log(data)
+    let uid;
+    firebase
+      .doCreateUserWithEmailAndPassword(data.email, data.password)
       .then(authUser => {
-        const JSON = {
-          username,
-          email
-        };
-        this.props.firebase.users().child(authUser.user.uid).set(JSON)
-         return [JSON, authUser.user.uid];
+        uid = authUser.user.uid;
+        return firebase.users().child(uid)
+        .set({userName: data.userName, email: data.email})
       })
-      .then((output) => {
-        this.props.onUserSignUp(output[0], output[1]);
-        this.props.history.push(ROUTES.LANDING);
+      .then(() => {
+        onUserSignUp({userName: data.userName, email: data.email}, uid);
+        history.push(ROUTES.LANDING);
       })
       .catch(console.log);
-    event.preventDefault();
   }
 
-  render() {
+  const getErrorMessage = (inputName) => {
+    let message = '';
+    if (errors[inputName]) {
+        switch (errors[inputName].type) {
+            case 'required':
+                message = errors[inputName].message;
+                break;
+            case 'pattern':
+                message = errors[inputName].message;
+                break;
+            case 'minLength':
+                message = errors[inputName].message;
+                break;
+            case 'passwordMatch':
+                message = 'Password and Confirm Password is not matched';
+                break;
+        }
+    }
+    return message;
+}
+
+
     return (
-        <MyForm formSubmit={this.formSubmitHandler} disabled={this.state.invalid}>
+        <MyForm onSubmit={handleSubmit(onSubmit)} >
             <MyInput
                 required
-                error={this.state.showError('userName')}
-                helperText={this.state.showErrorText('userName')}
-                id="user-name"
                 name="userName"
                 label="User Name"
-                value={this.state.controls.userName.value}
-                onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
                 style={{ width: '100%' }}
+                inputRef={register({
+                  required: 'This field is required'
+                })}
+                error={!!errors.userName}
+                helperText={getErrorMessage('userName')}
             />
             <MyInput
-                id="email"
                 name="email"
                 label="Email"
-                value={this.state.controls.email.value}
-                onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
                 style={{ width: '100%' }}
-                error={this.state.showError('email')}
-                helperText={this.state.showErrorText('email')}
+                inputRef={
+                   register({
+                    required: 'This field is required',
+                    pattern: { 
+                      value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                      message: 'Email address is not valid'
+                    }
+                })}
+                error={!!errors.email}
+                helperText={getErrorMessage('email')}
             />
             
             <MyInput
-                id="password"
                 type="password"
                 required
-                name="passwordOne"
+                name="password"
                 label="Password"
-                value={this.state.controls.passwordOne.value}
-                onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
                 style={{ width: '100%' }}
-                error={this.state.showError('passwordOne')}
-                helperText={this.state.showErrorText('passwordOne')}
+                inputRef={register({
+                  required: 'This field is required',
+                  minLength: {
+                    value: 8,
+                    message: "Password must have at least 8 characters"
+                  },
+                })}
+                error={!!errors.password}
+                helperText={getErrorMessage('password')}
             />
             <MyInput
-                id="confirm-password"
                 type="password"
                 required
-                name="passwordTwo"
+                name="confirmPassword"
                 label="Confirm Password"
-                value={this.state.controls.passwordTwo.value}
-                onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
                 style={{ width: '100%' }}
-                error={this.state.showError('passwordTwo')}
-                helperText={this.state.showErrorText('passwordTwo')}
+                inputRef={register({
+                  required: 'This field is required',
+                  validate:{
+                    passwordMatch: value => value === watch('password'),
+                  }
+                })}
+                error={!!errors.confirmPassword}
+                helperText={getErrorMessage('confirmPassword')}
             />
-
+    
+            
+               
+                
+              
+      
         </MyForm>
     );
-  }
 }
 
 const SignUpLink = () => (
-  <p>
+  <Typography align="center">
     Don't have an account? <Link to={ROUTES.SIGN_UP}>Sign Up</Link>
-  </p>
+  </Typography>
 );
 
 const mapDispatchToProps = dispatch => ({

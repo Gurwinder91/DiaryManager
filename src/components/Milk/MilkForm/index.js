@@ -1,5 +1,5 @@
 
-import React, { Component } from 'react';
+import React from 'react';
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
 import { withRouter } from 'react-router-dom';
 import {
@@ -9,151 +9,197 @@ import {
 import DateFnsUtils from '@date-io/date-fns';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
+import { useForm } from 'react-hook-form';
 
 import { MyForm, MyInput } from '../../../core';
-import { MyFormGroup, MyFormControl, EventHandler, MyObject } from '../../../utilty';
+import { MyObject } from '../../../utilty';
 import { withFirebase } from '../../Firebase';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 
-const INITIAL_STATE = new MyFormGroup({
-    id: new MyFormControl(2),
-    customerName: new MyFormControl(),
-    milkType: new MyFormControl('BM'),
-    milk: new MyFormControl(),
-    date: new MyFormControl(Date.now()),
-    time: new MyFormControl('morning'),
-    milkFat: new MyFormControl('', [{ name: 'required', message: 'Milk Fat is required' }])
-});
+const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onSetMilk, }) => {
 
-class MilkForm extends Component {
+    const { register, handleSubmit, errors, setValue } = useForm({mode: 'onBlur'});
+    const [milkType, setMilkType] = React.useState('BM');
+    const [date, setDate] = React.useState(Date.now());
+    const [customerName, setCustomerName] = React.useState('');
 
-    constructor(props) {
-        super(props);
-        this.state = { ...INITIAL_STATE };
-    }
+    React.useEffect(() => {
+        register({ name: "milkType" });
+        register({ name: "date" });
+        register({ name: "customerName" });
+        updateValues();
 
-    componentDidMount() {
-        if (this.props.milk) {
-            const { ...controls } = this.state.populateForm(this.props.milk);
-            this.setState({ controls: controls })
-        }
-
-        this.props.firebase.customers().on('value', snapshot => {
-            this.props.onSetCustomers(snapshot.val())
+        firebase.customers().on('value', snapshot => {
+            onSetCustomers(snapshot.val())
         });
+        return () => {
+            firebase.customers().off();
+        }
+    }, [register])
+
+    const handleDate = (date) => {
+        const milliSeconds = date.getTime();
+        setValue('date', milliSeconds);
+        setDate(milliSeconds);
     }
 
-    componentWillUnmount() {
-        this.props.firebase.customers().off();
+    const handleMilkType = option => {
+        const value = option.target.value;
+        setValue('milkType', value);
+        setMilkType(value);
     }
 
-    inputChangeHandler = (event) => {
-        const formGroup = this.state.inputChangeHandler(event);
-        this.setState({ controls: formGroup.controls, invalid: formGroup.invalid });
+    const handleCustName = option => {
+        const value = option.target.value;
+        setValue('customerName', value);
+        setCustomerName(value);
     }
 
-    dateChangeHandler = (name, date) => {
-        const formGroup = this.state.dateChangeHandler(name, date);
-        this.setState({ controls: formGroup.controls, invalid: formGroup.invalid });
+    const updateValues = () => {
+        const customerName = milk.customerName || customers.length > 0 ? customers[0].customerName : '';
+
+        setValue('milkType', milk.milkType);
+        setValue('date', milk.date);
+        setValue('customerName', customerName);
+
+        setMilkType(milk.milkType);
+        setDate(milk.date);
+        setCustomerName(customerName);
     }
 
-    formSubmitHandler = (event) => {
-        this.state.formSubmit(event)
-            .then(form => {
-                 this.props.firebase.milks()
-                    .child(form.date)
-                        .child(form.time)
-                            .child(form.milkType).set(form);
+    const getErrorMessage = (inputName) => {
+        let message = '';
+        if (errors[inputName]) {
+            switch (errors[inputName].type) {
+                case 'required':
+                    message = errors[inputName].message;
+                    break;
+                case 'pattern':
+                    message = errors[inputName].message;
+                    break;
+                case 'max':
+                    message = errors[inputName].message;
+                    break;
+            }
+        }
+        return message;
+    }
+
+    const savemilkData = (data) => {
+        if (uid) {
+            return firebase.milks().child(uid).update(data)
+                .then(() => uid);
+
+        } else {
+            const key = firebase.milks().push().key;
+            return firebase.milks().child(key).set(data)
+                .then(() => key);
+        }
+    }
+
+    const onSubmit = (data) => {
+        savemilkData(data)
+            .then((key) => {
+                return onSetMilk(data, key);
             })
-            .then(() => {
-                this.setState({ ...INITIAL_STATE });
-                this.props.history.push(ROUTES.MILK_URLS.milk);
-            })
+            .then(() => history.push(ROUTES.MILK_URLS.milk))
             .catch(console.log);
     }
 
-    render = () => {
-        return (
-            <>
-                <Typography variant="h4" align="center">
-                    Add Milk
+    return (
+        <>
+            <Typography variant="h4" align="center">
+                Add Milk
                 </Typography>
-                <MyForm formSubmit={this.formSubmitHandler} disabled={this.state.invalid}>
-                    <Select
-                        style={{ width: '100%', marginTop: '10px' }}
-                        labelId="customerName"
-                        id="customer-name"  
-                        name="customerName"
-                        value={this.state.controls.customerName.value}
-                        onChange={this.inputChangeHandler}
-                    >
-                        {this.props.customers.map(customer =>
-                            <MenuItem key={customer.uid} value={customer.customerName}>{customer.customerName}</MenuItem>
-                        )}
-                    </Select>
-                    <Select
-                        style={{ width: '100%', marginTop: '10px' }}
-                        labelId="Milk Type"
-                        id="milk-type"
-                        name="milkType"
-                        value={this.state.controls.milkType.value}
-                        onChange={this.inputChangeHandler}
-                    >
-                        <MenuItem value="BM">BM</MenuItem>
-                        <MenuItem value="CM">CM</MenuItem>
-                        <MenuItem value="BOTH">Both</MenuItem>
-                    </Select>
+            <MyForm onSubmit={handleSubmit(onSubmit)}>
+                <Select
+                    style={{ width: '100%', marginTop: '10px' }}
+                    labelId="Customer Name"
+                    name="customerName"
+                    value={customerName}
+                    onChange={handleCustName}
+                >
+                    {customers.map(customer =>
+                        <MenuItem key={customer.uid} value={customer.customerName}>{customer.customerName}</MenuItem>
+                    )}
+                </Select>
+                <Select
+                    style={{ width: '100%', marginTop: '10px' }}
+                    labelId="Milk Type"
+                    name="milkType"
+                    value={milkType}
+                    onChange={handleMilkType}
+                >
+                    <MenuItem value="BM">BM</MenuItem>
+                    <MenuItem value="CM">CM</MenuItem>
+                    <MenuItem value="BOTH">Both</MenuItem>
+                </Select>
 
-                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                        <DatePicker
-                            disableFuture
-                            autoOk
-                            style={{ width: '100%' }}
-                            id="date"
-                            label="Date"
-                            name="date"
-                            format="MM/dd/yyyy"
-                            value={this.state.controls.date.value}
-                            onChange={this.dateChangeHandler.bind(this, 'date')}
-                        />
-                    </MuiPickersUtilsProvider>
-                    <MyInput
-                        required
-                        type="number"
-                        error={this.state.showError('milk')}
-                        helperText={this.state.showErrorText('milk')}
-                        id="milk"
-                        name="milk"
-                        label="Milk Quantity"
-                        value={this.state.controls.milk.value}
-                        onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <DatePicker
+                        disableFuture
+                        autoOk
                         style={{ width: '100%' }}
+                        label="Date"
+                        name="date"
+                        format="MM/dd/yyyy"
+                        value={date}
+                        onChange={handleDate.bind(this, 'date')}
                     />
-                    <MyInput
-                        required
-                        type="number"
-                        error={this.state.showError('milkFat')}
-                        helperText={this.state.showErrorText('milkFat')}
-                        id="milk-fat"
-                        name="milkFat"
-                        label="Milk Fat"
-                        value={this.state.controls.milkFat.value}
-                        onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
-                        style={{ width: '100%' }}
-                    />
-                    <FormControl component="fieldset" style={{ width: '100%' }}>
-                        <FormLabel component="legend">Time</FormLabel>
-                        <RadioGroup aria-label="time" name="time" style={{ flexDirection: 'row' }}
-                            value={this.state.controls.time.value} onChange={this.inputChangeHandler}>
-                            <FormControlLabel value="Morning" control={<Radio />} label="Morning" />
-                            <FormControlLabel value="Evening" control={<Radio />} label="Evening" />
-                        </RadioGroup>
-                    </FormControl>
-                </MyForm>
-            </>
-        );
-    }
+                </MuiPickersUtilsProvider>
+                <MyInput
+                    required
+                    type="number"
+                    name="milkQuantity"
+                    label="Milk Quantity (in litres)"
+                    style={{ width: '100%' }}
+                    defaultValue={milk.milkQuantity}
+                    inputRef={
+                        register({
+                            required: 'This field is required',
+                            pattern: {
+                                value: /^[0-9.]*$/,
+                                message: 'Only numbers are allowed'
+                            }
+                        })
+                    }
+                    error={!!errors.milkQuantity}
+                    helperText={getErrorMessage('milkQuantity')}
+                />
+                <MyInput
+                    required
+                    type="number"
+                    name="milkFat"
+                    label="Milk Fat"
+                    style={{ width: '100%' }}
+                    defaultValue={milk.milkFat}
+                    inputRef={
+                        register({
+                            required: 'This field is required',
+                            max: {
+                                value: 10,
+                                message: 'More than 10 is not allowed'
+                            },
+                            pattern: {
+                                value: /^[0-9.]*$/,
+                                message: 'Only numbers are allowed'
+                            }
+                        })
+                    }
+                    error={!!errors.milkFat}
+                    helperText={getErrorMessage('milkFat')}
+                />
+                <FormControl component="fieldset" fullWidth>
+                    <FormLabel component="legend">Time</FormLabel>
+                    <RadioGroup aria-label="time" style={{ flexDirection: 'row' }} defaultValue={milk.time}>
+                        <FormControlLabel name="time" value="Morning" inputRef={register} control={<Radio />} label="Morning" />
+                        <FormControlLabel name="time" value="Evening" inputRef={register} control={<Radio />} label="Evening" />
+                    </RadioGroup>
+                </FormControl>
+            </MyForm>
+        </>
+    );
 }
 
 const mapStateToProps = state => ({

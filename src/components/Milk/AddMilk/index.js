@@ -1,12 +1,18 @@
 
-import React, { Component } from 'react';
-import MilkForm from '../MilkForm'; 
+import React from 'react';
+import MilkForm from '../MilkForm';
 
-export default class AddMilk extends Component {
-
-    render() {
-        return (
-            <MilkForm/>
-        )
+export default () => {
+    const milk= {
+        date: Date.now(),
+        customerName: '',
+        milkType: 'BM',
+        time: 'Morning',
+        milkFat: '',
+        milkQuantity: ''
     }
+    return (
+        <MilkForm milk={milk} />
+    )
+
 }

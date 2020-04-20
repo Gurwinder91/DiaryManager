@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import MilkForm from '../MilkForm';
 
-export default class EditMilk extends Component {
+export default () => {
 
-    state = {
+    const state = {
         milk: {
             id: 1,
             customerName: 2,
@@ -16,9 +16,8 @@ export default class EditMilk extends Component {
         }
     }
 
-    render() {
-        return (
-            <MilkForm milk={this.state.milk} />
-        )
-    }
+    return (
+        <MilkForm milk={state.milk} />
+    )
+
 } 

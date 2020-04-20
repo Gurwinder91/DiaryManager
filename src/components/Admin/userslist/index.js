@@ -13,7 +13,7 @@ export default (props) => {
                     </Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                    primary={user.username}
+                    primary={user.userName}
                     secondary={user.email}
                 />
                 <ListItemSecondaryAction>

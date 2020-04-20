@@ -5,7 +5,7 @@ import { List, Typography } from '@material-ui/core';
 
 import { withFirebase } from '../Firebase';
 import { MyConfirmDialog } from '../../core';
-import UsersList from './userslist';
+import UsersList from './UsersList';
 import * as ACTIONS from '../../actions';
 import { MyObject } from '../../utilty';
 

@@ -6,11 +6,11 @@ import { Container } from '@material-ui/core';
 import './style.scss';
 import { Customer, AddCustomer, EditCustomer } from "../customer";
 import { Milk, AddMilk, EditMilk } from '../Milk';
-import Footer from '../footer';
+import Footer from '../Footer';
 
 import * as ROUTES from '../../constants/routes';
 import SignUpPage from "../SignUp";
-import AdminPage from "../admin";
+import AdminPage from "../Admin";
 import SignInPage from "../Signin";
 
 class Main extends Component {

@@ -1,86 +1,94 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { Typography } from '@material-ui/core';
+import { useForm } from 'react-hook-form';
 
 import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
-import { MyFormGroup, MyFormControl, EventHandler } from '../../utilty';
 import { MyForm, MyInput } from '../../core';
 
 const SignInPage = () => (
   <div>
     <Typography variant="h4" align="center">
-      Sign Up
-      </Typography>
+      Authenticate
+    </Typography>
     <SignInForm />
     <SignUpLink />
   </div>
 );
-const INITIAL_STATE = new MyFormGroup({
-  email: new MyFormControl('', [{ name: 'email', message: 'Email is not valid' }]),
-  password: new MyFormControl('', [{ name: 'required', message: 'Password is required' }])
-})
-class SignInFormBase extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { ...INITIAL_STATE };
-  }
 
-  inputChangeHandler = (event) => {
-    const formGroup = this.state.inputChangeHandler(event);
-    this.setState({ controls: formGroup.controls, invalid: formGroup.invalid });
-  }
+const SignInFormBase = ({ firebase, history }) => {
 
-  formSubmitHandler = event => {
-    const { email, password } = this.state.controls;
-    this.props.firebase
-      .doSignInWithEmailAndPassword(email.value, password.value)
+  const { register, handleSubmit, errors } = useForm();
+
+  const onSubmit = (data) => {
+    firebase
+      .doSignInWithEmailAndPassword(data.email, data.password)
       .then(() => {
-        this.setState({ ...INITIAL_STATE });
-        this.props.history.push(ROUTES.LANDING);
+        history.push(ROUTES.LANDING);
       })
-      .catch(error => {
-        this.setState({ error });
-      });
-    event.preventDefault();
+      .catch(console.log);
   };
 
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
-
-  render() {
-
-    return (
-      <MyForm formSubmit={this.formSubmitHandler} disabled={this.state.invalid}>
-        <MyInput
-          id="email"
-          name="email"
-          label="Email"
-          value={this.state.controls.email.value}
-          onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
-          style={{ width: '100%' }}
-          error={this.state.showError('email')}
-          helperText={this.state.showErrorText('email')}
-        />
-
-        <MyInput
-          id="password"
-          type="password"
-          required
-          name="password"
-          label="Password"
-          value={this.state.controls.password.value}
-          onChange={EventHandler.debounce(this.inputChangeHandler, 1000)}
-          style={{ width: '100%' }}
-          error={this.state.showError('password')}
-          helperText={this.state.showErrorText('password')}
-        />
-      </MyForm>
-    );
+  const getErrorMessage = (inputName) => {
+    let message = '';
+    if (errors[inputName]) {
+      switch (errors[inputName].type) {
+        case 'required':
+          message = errors[inputName].message;
+          break;
+        case 'pattern':
+          message = errors[inputName].message;
+          break;
+        case 'minLength':
+          message = errors[inputName].message;
+          break;
+        default:
+          break;
+      }
+    }
+    return message;
   }
+
+  return (
+    <MyForm onSubmit={handleSubmit(onSubmit)}>
+      <MyInput
+        name="email"
+        label="Email"
+        style={{ width: '100%' }}
+        inputRef={
+          register({
+            required: 'This field is required',
+            pattern: {
+              value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+              message: 'Email address is not valid'
+            }
+          })}
+        error={!!errors.email}
+        helperText={getErrorMessage('email')}
+      />
+
+      <MyInput
+        type="password"
+        required
+        name="password"
+        label="Password"
+        style={{ width: '100%' }}
+        inputRef={register({
+          required: 'This field is required',
+          minLength: {
+            value: 8,
+            message: "Password must have at least 8 characters"
+          },
+        })}
+        error={!!errors.password}
+        helperText={getErrorMessage('password')}
+      />
+    </MyForm>
+  );
+
 }
 const SignInForm = compose(
   withRouter,
