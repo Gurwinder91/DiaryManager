@@ -32,7 +32,10 @@ const applySetMilkByDate = (state, action) => ({
 
 const applyRemoveMilk = (state, action) => ({
     ...state,
-    milks: new MyObject(state.milks).removeObject(action.uid),
+    milks: {
+      ...state.milks,
+      [action.date]: new MyObject(state.milks[action.date]).removeObject(action.uid),
+    } 
 });
 
 function milkReducer(state = INITIAL_STATE, action) {

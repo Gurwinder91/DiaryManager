@@ -147,7 +147,6 @@ const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) =>
             >
                 <MenuItem value="BM">BM</MenuItem>
                 <MenuItem value="CM">CM</MenuItem>
-                <MenuItem value="BCM">BCM</MenuItem>
             </MySelect>
 
             <MyDatePicker

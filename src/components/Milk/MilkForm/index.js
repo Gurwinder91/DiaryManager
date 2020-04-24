@@ -15,6 +15,7 @@ import { MyObject, ErrorGenerator } from '../../../utilty';
 import { withFirebase } from '../../Firebase';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
+import MILK_RATES from '../milkRates';
 
 const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, onSetMilk, uid }) => {
     const { register, handleSubmit, errors, setValue } = useForm({
@@ -36,6 +37,7 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
 
         return () => {
             firebase.customers().off();
+            firebase.milks().off();
         }
     }, [register, firebase]);
 
@@ -59,6 +61,7 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
 
     const handleMilkType = option => {
         const value = option.target.value;
+        setValue('milkRate', MILK_RATES[value]);
         setValue('milkType', value);
         setMilkType(value);
     }
@@ -71,6 +74,8 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
 
     const saveMilkData = (data) => {
         const { date, ...other } = data;
+        other.milkPrice = calculateMilkPrice(other);
+
         if (mode === 'edit') {
             return firebase.milks().child(date).child(uid).update(other)
                 .then(() => [other, date, uid]);
@@ -79,6 +84,11 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
             return firebase.milks().child(date).child(key).set(other)
                 .then(() => [other, date, key]);
         }
+    }
+
+    const calculateMilkPrice = (milk) => {
+        const cream = milk.milkQuantity * milk.milkFat;
+        return (cream * milk.milkRate / 10).toFixed(2);
     }
 
     const onSubmit = (data) => {
@@ -119,7 +129,6 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
                 >
                     <MenuItem value="BM">BM</MenuItem>
                     <MenuItem value="CM">CM</MenuItem>
-                    <MenuItem value="BCM">BCM</MenuItem>
                 </MySelect>
 
                 <MyDatePicker
@@ -127,6 +136,14 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
                     name="date"
                     value={date}
                     onChange={handleDate}
+                />
+
+                <MyInput
+                    type="number"
+                    name="milkRate"
+                    label="Milk Rate"
+                    style={{ width: '100%' }}
+                    inputRef={register}
                 />
 
                 <MyInput

@@ -1,9 +1,10 @@
 
 import React, { Fragment } from 'react';
-import { Typography, ListItem, ListItemText, Divider, ListItemAvatar, Avatar, Chip } from '@material-ui/core';
+import { Typography, ListItem, ListItemText, Divider, ListItemAvatar, Avatar, Chip, Button } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import { withFirebase } from '../../Firebase';
 import { ActionIcon, MyConfirmDialog } from '../../../core';
@@ -11,7 +12,7 @@ import useStyles from './style';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 
-const MilkList = ({ milks, firebase, onRemoveMilk }) => {
+const MilkList = ({ milks, firebase, onRemoveMilk, date }) => {
 
     const history = useHistory();
     const classes = useStyles();
@@ -19,8 +20,8 @@ const MilkList = ({ milks, firebase, onRemoveMilk }) => {
     const [dialogValue, setDialogValue] = React.useState({});
 
     const removeMilkEntry = (uid) => {
-        firebase.milks().child(uid).remove()
-            .then(() => onRemoveMilk(uid))
+        firebase.milks().child(date).child(uid).remove()
+            .then(() => onRemoveMilk(date, uid))
     }
 
     const onMenuclosed = (milk, actionType) => {
@@ -69,23 +70,35 @@ const MilkList = ({ milks, firebase, onRemoveMilk }) => {
                             <ListItemText
                                 disableTypography
                                 primary={
-                                    <Typography className={classes.customerName}
-                                        component="span"
-                                        variant="h6"
-                                        color="textPrimary"
-                                    >
-                                        {`${item.customerName}`}
-                                    </Typography>
+                                    <div className={classes.contentSection}>
+                                        <Typography className={classes.customerName}
+                                            component="span"
+                                            variant="h6"
+                                            color="textPrimary"
+                                        >
+                                            {`${item.customerName}`}
+                                        </Typography>
+
+                                        <Typography component="span" className={classes.time}
+                                            variant="body2"
+                                            color="textSecondary">
+                                            {item.time}
+                                        </Typography>
+                                    </div>
+
                                 }
                                 secondary={
-                                    <div>
-                                        <Chip label={`${item.milkQuantity} L`} className={classes.milkQuantityChip} />
-                                        <Chip label={`${item.milkFat} F`} className={classes.chip} />
-                                        <Chip label={item.time} className={classes.chip} />
+                                    <div className={classes.contentSection}>
+                                        <div className={classes.chips}>
+                                            <Chip label={`${item.milkQuantity} L`} />
+                                            <Chip label={`${item.milkFat} F`} />
+                                            <Chip label={`Rs ${item.milkPrice}`} />
+                                        </div>
+                                        <ActionIcon whenMenuClosed={onMenuclosed.bind(this, item)} icon={<ExpandMoreIcon />} />
                                     </div>
+
                                 }
                             />
-                            <ActionIcon whenMenuClosed={onMenuclosed.bind(this, item)} />
                         </ListItem>
                         <Divider variant="inset" component="li" />
                     </Fragment>
@@ -102,7 +115,7 @@ const MilkList = ({ milks, firebase, onRemoveMilk }) => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    onRemoveMilk: (uid) => dispatch({ type: ACTIONS.MILK_REMOVE, uid })
+    onRemoveMilk: (date, uid) => dispatch({ type: ACTIONS.MILK_REMOVE, date, uid })
 })
 
 export default compose(

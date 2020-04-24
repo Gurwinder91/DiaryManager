@@ -39,14 +39,12 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
     const calculateMilkMath = (milksToCalc) => {
         const BMMilks = milksToCalc.filter(item => item.milkType === 'BM').map(item => Number(item.milkQuantity));
         const CMMilks = milksToCalc.filter(item => item.milkType === 'CM').map(item => Number(item.milkQuantity));
-        const BCMMilks = milksToCalc.filter(item => item.milkType === 'BCM').map(item => Number(item.milkQuantity));
         const totalMilks = milksToCalc.map(item => Number(item.milkQuantity));
 
         const milkMath = {
             total: calculateSum(totalMilks) || 0,
             BMTotal: calculateSum(BMMilks) || 0,
             CMTotal: calculateSum(CMMilks) || 0,
-            BCMTotal: calculateSum(BCMMilks) || 0,
         }
 
         return milkMath;
@@ -65,7 +63,8 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
     }
 
     const renderContent = () => {
-        let [ ...milks ] = getMilksByDate(getFormattedDate(date));
+        const formattedDate = getFormattedDate(date);
+        let [ ...milks ] = getMilksByDate(formattedDate);
         if (time !== 'All') {
             milks = milks.filter(item => item.time === time);
         }
@@ -76,7 +75,7 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
                 {milks.length ? <MilkExpensionPanel milkMath={milkMath} /> : null}
                 <MyList>
                     {
-                        milks.length ? <MilkList milks={milks} /> : null
+                        milks.length ? <MilkList milks={milks} date={formattedDate}/> : null
                     }
                 </MyList>
             </>)

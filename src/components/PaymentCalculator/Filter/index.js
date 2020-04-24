@@ -15,8 +15,6 @@ const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
     const [startDate, setStartDate] = React.useState(moment());
     const [endDate, setEndDate] = React.useState(moment());
     const [customerName, setCustomerName] = React.useState('All');
-    const [milkRate, setMilkRate] = React.useState('');
-    const [milkType, setMilkType] = React.useState('BM');
     const minDate = moment().subtract(1, 'months');
 
     React.useEffect(() => {
@@ -42,21 +40,11 @@ const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
         setCustomerName(event.target.value);
     }
 
-    const handleMilkRate = (event) => {
-        setMilkRate(event.target.value);
-    }
-
-    const handleMilkType = (event) => {
-        setMilkType(event.target.value);
-    }
-
     const calculateProxy = () => {
         const data = {
             startDate: startDate.format('DD-MM-YYYY'),
             endDate: endDate.format('DD-MM-YYYY'),
             customerName: customerName,
-            milkRate: milkRate,
-            milkType: milkType,
         };
 
         onCalculate(data);
@@ -84,29 +72,6 @@ const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
                         value={endDate}
                         onChange={handleEndDate}
                     />
-                </div>
-                <div className={classes.controls}>
-                    <MyInput
-                        type="number"
-                        name="milkRate"
-                        label="Milk Rate"
-                        value={milkRate}
-                        onChange={handleMilkRate}
-                        style={{ width: '45%' }}
-                    />
-                    <MySelect
-                        className={classes.milkType}
-                        fullWidth={false}
-                        labelName="Milk Type"
-                        labelId="milk-type"
-                        name="milkType"
-                        value={milkType}
-                        onChange={handleMilkType}
-                    >
-                        <MenuItem value="BM">BM</MenuItem>
-                        {/* <MenuItem value="CM">CM</MenuItem>
-                        <MenuItem value="BCM">BCM</MenuItem> */}
-                    </MySelect>
                 </div>
                 <MySelect
                     className={classes.customerName}

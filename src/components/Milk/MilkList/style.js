@@ -15,18 +15,25 @@ export default makeStyles((theme) => ({
         color: theme.palette.getContrastText(deepPurple[500]),
         backgroundColor: deepPurple[500],
     },
-    teal: {
-        color: theme.palette.getContrastText(teal[500]),
-        backgroundColor: teal[500],
-    },
     customerName: {
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
     },
-    milkQuantityChip: {
-        height: 22,
+    contentSection: {
+        display: 'flex',
+        justifyContent: 'space-between'
     },
-    chip: {
-        height: 22,
-        marginLeft: 10
+    time: {
+        textTransform: 'uppercase',
+        textAlign: 'center',
+        lineHeight: 3,
+        fontSize: '0.775rem',
+    },
+    chips: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        '& > *': {
+            height: 24,
+            marginRight: 5,
+        }
     },
 }))

@@ -7,7 +7,7 @@ export default makeStyles({
         margin: '10px',
     },
     mySelect: {
-        width: '30%',
+        width: '40%',
         '& label + .MuiInput-formControl': {
             marginTop: 0,
         },

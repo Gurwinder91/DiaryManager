@@ -11,7 +11,7 @@ export default ({date, time, setTime, setDate}) => {
     return (
         <div className={classes.root}>
             <MyDatePicker
-                width={35}
+                width={40}
                 name="date"
                 value={date}
                 onChange={setDate}

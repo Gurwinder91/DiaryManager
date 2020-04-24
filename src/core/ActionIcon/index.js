@@ -22,7 +22,7 @@ export default (props) => {
         <div>
             <IconButton edge="end" aria-label="action" style={{ marginRight: 5, padding: 0 }}
                 onClick={handleClick}>
-                <MoreVertIcon fontSize="large" />
+                { props.icon ? props.icon : <MoreVertIcon fontSize="large" /> }
             </IconButton>
             <MyActionMenu open={open} anchorEl={anchorEl} handleClose={handleClose} />
         </div>

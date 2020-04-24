@@ -29,71 +29,23 @@ export default ({ milkMath }) => {
                 <div className={classes.milkData}>
                     <div>
                         <Typography component="span" variant="subtitle1" color="textSecondary">
-                            BM
+                            BM:
                         </Typography>
                         <Typography component="h5" variant="h5" className={classes.orange}>
-                            {milkMath.BMTotal}L
+                            {milkMath.BMTotal} L
                         </Typography>
                     </div>
+                    |
                     <div >
                         <Typography component="span" variant="subtitle1" color="textSecondary">
-                            CM
+                            CM:
                         </Typography>
                         <Typography component="h5" variant="h5" className={classes.purple}>
-                            {milkMath.CMTotal}L
-                        </Typography>
-                    </div>
-                    <div>
-                        <Typography component="span" variant="subtitle1" color="textSecondary">
-                            BCM
-                        </Typography>
-                        <Typography component="h5" variant="h5" className={classes.teal}>
-                            {milkMath.BCMTotal}L
+                            {milkMath.CMTotal} L
                         </Typography>
                     </div>
                 </div>
             </ExpansionPanelDetails>
         </ExpansionPanel>
-        // <Card className={classes.root}>
-        //     <CardContent className={classes.content}>
-        //         <div className={classes.total}>
-        //             <Typography component="h5" variant="h5" color="textSecondary">
-        //                 TOTAL
-        //             </Typography>
-        //             <Typography component="h5" variant="h5">
-        //                 -
-        //             </Typography>
-        //             <Typography component="h5" variant="h5" className={classes.green}>
-        //                 {milkMath.total}L
-        //             </Typography>
-        //         </div>
-        //         <div className={classes.milkData}>
-        //             <div>
-        //                 <Typography component="span" variant="subtitle1" color="textSecondary">
-        //                     BM
-        //                 </Typography>
-        //                 <Typography component="h5" variant="h5" className={classes.orange}>
-        //                     {milkMath.BMTotal}L
-        //                 </Typography>
-        //             </div>
-        //             <div >
-        //                 <Typography component="span" variant="subtitle1" color="textSecondary">
-        //                     CM
-        //                 </Typography>
-        //                 <Typography component="h5" variant="h5" className={classes.purple}>
-        //                     {milkMath.CMTotal}L
-        //                 </Typography>
-        //             </div>
-        //             <div>
-        //                 <Typography component="span" variant="subtitle1" color="textSecondary">
-        //                     BCM
-        //                 </Typography>
-        //                 <Typography component="h5" variant="h5" className={classes.teal}>
-        //                     {milkMath.BCMTotal}L
-        //                 </Typography>
-        //             </div>
-        //         </div>
-        //     </CardContent>
-        // </Card>
     )
 }

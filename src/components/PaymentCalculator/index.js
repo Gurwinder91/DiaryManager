@@ -1,16 +1,17 @@
 
-import React from 'react';
-import { Typography, Card, CardContent } from '@material-ui/core';
+import React, { Fragment } from 'react';
+import { Typography, ListItemText, ListItem, Divider } from '@material-ui/core';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
 import { withFirebase } from '../Firebase';
 import Filter from './Filter';
+import { MyList } from '../../core';
 import * as ACTIONS from '../../actions';
 
 const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
-    const [payments, SetPayments] = React.useState([]);
+    const [payments, setPayments] = React.useState([]);
 
     React.useEffect(() => {
         firebase.milks().limitToLast(30).once('value', snapshot => {
@@ -20,11 +21,22 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
     }, [firebase]);
 
     const paymentCalculateHandler = (filterObj) => {
-
         let payments = arrangeData(filterObj);
+        setPayments(groupByCustomer(payments));
+    }
 
-        console.log(payments);
+    const groupByCustomer = (arr) => {
+        const map = new Map();
+        arr.forEach((item) => {
+            const collection = map.get(item.customerName);
+            if (!collection) {
+                map.set(item.customerName, [item]);
+            } else {
+                collection.push(item);
+            }
+        });
 
+        return map;
     }
 
     const arrangeData = (filterObj) => {
@@ -37,11 +49,6 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
                     date: date
                 };
 
-
-                milk = filterByMilkType(filterObj, milk);
-                if (!milk)
-                    return
-
                 milk = filterByCustomerName(filterObj, milk);
 
                 if (milk) {
@@ -53,14 +60,6 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
         return payments;
     }
 
-    const filterByMilkType = (filterObj, milk) => {
-        if (filterObj.milkType !== 'All') {
-            return milk.milkType === filterObj.milkType ? milk : null;
-        }
-
-        return milk;
-    }
-
     const filterByCustomerName = (filterObj, milk) => {
         if (filterObj.customerName !== 'All') {
             return milk.customerName === filterObj.customerName ? milk : null;
@@ -69,21 +68,45 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
         return milk;
     }
 
+    const calculateSum = (arr, fn) => {
+        return arr.reduce(fn, 0);
+    }
+
+    const renderPayments = () => {
+        let elements = [];
+        for (let entry of payments.entries()) {
+            elements.push( <Fragment key={entry[0]}>
+                <ListItem >
+                    <ListItemText
+                        primary={entry[0]}
+                        secondary={
+                            <>
+                                <Typography variant="body1" component="span" style={{ display: 'block' }}>
+                                    Total Milk in litres: {calculateSum(entry[1], (prevResult, item) => prevResult + Number(item.milkQuantity))}
+                                </Typography>
+                                <Typography variant="body1" component="span" style={{ display: 'block' }}>
+                                    Toal Payment in Rs: {calculateSum(entry[1], (prevResult, item) => prevResult + Number(item.milkPrice))}
+                                </Typography>
+                            </>
+                        }
+                    />
+                </ListItem>
+                <Divider />
+            </Fragment>
+            );
+        }
+        return elements;
+    }
+
     return (
         <>
             <Typography variant="h4" component="h4" align="center">
                 Payment Calculator
             </Typography>
             <Filter onCalculate={paymentCalculateHandler} />
-            {
-                payments.map(item =>
-                    <Card>
-                        <CardContent>
-                            <div>Gurwinder's Card</div>
-                        </CardContent>
-                    </Card>
-                )
-            }
+            <MyList>
+                {renderPayments()}
+            </MyList>
         </>
     )
 }

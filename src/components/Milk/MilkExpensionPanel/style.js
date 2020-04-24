@@ -3,7 +3,7 @@ import { deepOrange, deepPurple, teal } from '@material-ui/core/colors';
 
 export default makeStyles((theme) => ({
     root: {
-        marginBottom:10
+        marginBottom: 10,
     },
     total: {
         display: 'flex',
@@ -17,7 +17,11 @@ export default makeStyles((theme) => ({
     milkData: {
         display: 'flex',
         justifyContent: 'space-between',
-        width: '100%'
+        alignItems: 'center',
+        width: '100%',
+        '& > *': {
+            display: 'flex'
+        }
     },
     green: {
         color: theme.palette.success.main,
@@ -26,14 +30,11 @@ export default makeStyles((theme) => ({
     orange: {
         color: deepOrange[500],
         fontWeight: 500,
+        marginLeft: 10,
     },
     purple: {
         color: deepPurple[500],
         fontWeight: 500,
+        marginLeft: 10,
     },
-    teal: {
-        color: teal[500],
-        fontWeight: 500,
-    },
-
 }));
