@@ -9,6 +9,7 @@ import * as ROUTES from '../../constants/routes';
 import { withFirebase} from '../Firebase';
 import { MyForm, MyInput } from '../../core';
 import * as ACTIONS from '../../actions';
+import {ErrorGenerator} from '../../utilty';
 
 const SignUpPage = () => (
     <>
@@ -20,10 +21,9 @@ const SignUpPage = () => (
 );
 
 const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
-  const { register, handleSubmit, errors, watch } = useForm();
+  const { register, handleSubmit, errors, getValues } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data)
     let uid;
     firebase
       .doCreateUserWithEmailAndPassword(data.email, data.password)
@@ -39,28 +39,6 @@ const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
       .catch(console.log);
   }
 
-  const getErrorMessage = (inputName) => {
-    let message = '';
-    if (errors[inputName]) {
-        switch (errors[inputName].type) {
-            case 'required':
-                message = errors[inputName].message;
-                break;
-            case 'pattern':
-                message = errors[inputName].message;
-                break;
-            case 'minLength':
-                message = errors[inputName].message;
-                break;
-            case 'passwordMatch':
-                message = 'Password and Confirm Password is not matched';
-                break;
-        }
-    }
-    return message;
-}
-
-
     return (
         <MyForm onSubmit={handleSubmit(onSubmit)} >
             <MyInput
@@ -69,10 +47,10 @@ const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
                 label="User Name"
                 style={{ width: '100%' }}
                 inputRef={register({
-                  required: 'This field is required'
+                  required: true
                 })}
                 error={!!errors.userName}
-                helperText={getErrorMessage('userName')}
+                helperText={ErrorGenerator.getErrorMessage(errors,'userName')}
             />
             <MyInput
                 name="email"
@@ -80,14 +58,14 @@ const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
                 style={{ width: '100%' }}
                 inputRef={
                    register({
-                    required: 'This field is required',
+                    required: true,
                     pattern: { 
                       value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                       message: 'Email address is not valid'
                     }
                 })}
                 error={!!errors.email}
-                helperText={getErrorMessage('email')}
+                helperText={ErrorGenerator.getErrorMessage(errors,'email')}
             />
             
             <MyInput
@@ -97,14 +75,14 @@ const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
                 label="Password"
                 style={{ width: '100%' }}
                 inputRef={register({
-                  required: 'This field is required',
+                  required: true,
                   minLength: {
                     value: 8,
                     message: "Password must have at least 8 characters"
                   },
                 })}
                 error={!!errors.password}
-                helperText={getErrorMessage('password')}
+                helperText={ErrorGenerator.getErrorMessage(errors,'password')}
             />
             <MyInput
                 type="password"
@@ -113,20 +91,17 @@ const SignUpFormBase = ({firebase, history, onUserSignUp}) => {
                 label="Confirm Password"
                 style={{ width: '100%' }}
                 inputRef={register({
-                  required: 'This field is required',
+                  required: true,
                   validate:{
-                    passwordMatch: value => value === watch('password'),
+                    passwordMatch: value => {
+                      const { password } = getValues();
+                      return password === value || 'Passwords should match!';
+                    }
                   }
                 })}
                 error={!!errors.confirmPassword}
-                helperText={getErrorMessage('confirmPassword')}
+                helperText={ErrorGenerator.getErrorMessage(errors, 'confirmPassword')}
             />
-    
-            
-               
-                
-              
-      
         </MyForm>
     );
 }

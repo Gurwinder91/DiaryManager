@@ -12,6 +12,7 @@ import * as ROUTES from '../../constants/routes';
 import SignUpPage from "../SignUp";
 import AdminPage from "../Admin";
 import SignInPage from "../Signin";
+import PaymentCalculator from "../PaymentCalculator";
 
 class Main extends Component {
 
@@ -32,6 +33,7 @@ class Main extends Component {
                 <Route path={ROUTES.MILK_URLS.milk} exact component={Milk} />
                 <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`} exact component={AddMilk} />
                 <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}:uid`} exact component={EditMilk} />
+                <Route path={`${ROUTES.PAYMENT_CALCULATOR}`} exact component={PaymentCalculator} />
                 <Footer />
             </Container>
         );

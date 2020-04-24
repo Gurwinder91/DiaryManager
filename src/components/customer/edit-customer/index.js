@@ -39,10 +39,15 @@ class EditCustomer extends Component {
     }
 }
 
-const mapStateToProps = (state, props) => {
-    return {
-        customer: state.customerState.customers[props.match.params.uid]
+const mapStateToProps = (state, { match }) => {
+    let customer = {};
+    if (state.customerState.customers) {
+        customer = state.customerState.customers[match.params.uid];
     }
+
+    return {
+        customer: customer
+    };
 }
 
 const mapDispatchToProps = dispatch => ({

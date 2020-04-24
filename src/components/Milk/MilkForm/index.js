@@ -1,47 +1,60 @@
 
 import React from 'react';
-import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
 import { withRouter } from 'react-router-dom';
 import {
-    Typography, MenuItem, Select, FormControlLabel,
+    Typography, MenuItem, FormControlLabel,
     FormControl, FormLabel, RadioGroup, Radio
 } from '@material-ui/core';
-import DateFnsUtils from '@date-io/date-fns';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import moment from 'moment';
 
-import { MyForm, MyInput } from '../../../core';
-import { MyObject } from '../../../utilty';
+import { MyForm, MyInput, MySelect, MyDatePicker } from '../../../core';
+import { MyObject, ErrorGenerator } from '../../../utilty';
 import { withFirebase } from '../../Firebase';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 
-const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onSetMilk, }) => {
-
-    const { register, handleSubmit, errors, setValue } = useForm({mode: 'onBlur'});
+const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, onSetMilk, uid }) => {
+    const { register, handleSubmit, errors, setValue } = useForm({
+        defaultValues: { ...milk }
+    });
     const [milkType, setMilkType] = React.useState('BM');
-    const [date, setDate] = React.useState(Date.now());
+    const [date, setDate] = React.useState(moment());
     const [customerName, setCustomerName] = React.useState('');
 
-    React.useEffect(() => {
-        register({ name: "milkType" });
-        register({ name: "date" });
-        register({ name: "customerName" });
-        updateValues();
 
+    React.useEffect(() => {
         firebase.customers().on('value', snapshot => {
             onSetCustomers(snapshot.val())
         });
+
+        register({ name: "milkType" });
+        register({ name: "date" });
+        register({ name: "customerName" }, { required: true });
+
         return () => {
             firebase.customers().off();
         }
-    }, [register])
+    }, [register, firebase]);
 
-    const handleDate = (date) => {
-        const milliSeconds = date.getTime();
-        setValue('date', milliSeconds);
-        setDate(milliSeconds);
+    React.useEffect(() => {
+        if (Object.keys(milk).length) {
+            setValue('milkType', milk.milkType);
+            setValue('date', milk.date.format('DD-MM-YYYY'));
+            setValue('customerName', milk.customerName);
+
+            setMilkType(milk.milkType);
+            setDate(milk.date);
+            setCustomerName(milk.customerName);
+        }
+    }, [milk])
+
+    const handleDate = (momentInstance) => {
+        const formattedDate = momentInstance.format('DD-MM-YYYY');
+        setValue('date', formattedDate);
+        setDate(momentInstance);
     }
 
     const handleMilkType = option => {
@@ -56,52 +69,22 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onS
         setCustomerName(value);
     }
 
-    const updateValues = () => {
-        const customerName = milk.customerName || customers.length > 0 ? customers[0].customerName : '';
-
-        setValue('milkType', milk.milkType);
-        setValue('date', milk.date);
-        setValue('customerName', customerName);
-
-        setMilkType(milk.milkType);
-        setDate(milk.date);
-        setCustomerName(customerName);
-    }
-
-    const getErrorMessage = (inputName) => {
-        let message = '';
-        if (errors[inputName]) {
-            switch (errors[inputName].type) {
-                case 'required':
-                    message = errors[inputName].message;
-                    break;
-                case 'pattern':
-                    message = errors[inputName].message;
-                    break;
-                case 'max':
-                    message = errors[inputName].message;
-                    break;
-            }
-        }
-        return message;
-    }
-
-    const savemilkData = (data) => {
-        if (uid) {
-            return firebase.milks().child(uid).update(data)
-                .then(() => uid);
-
+    const saveMilkData = (data) => {
+        const { date, ...other } = data;
+        if (mode === 'edit') {
+            return firebase.milks().child(date).child(uid).update(other)
+                .then(() => [other, date, uid]);
         } else {
-            const key = firebase.milks().push().key;
-            return firebase.milks().child(key).set(data)
-                .then(() => key);
+            let key = firebase.milks().child(date).push().key;
+            return firebase.milks().child(date).child(key).set(other)
+                .then(() => [other, date, key]);
         }
     }
 
     const onSubmit = (data) => {
-        savemilkData(data)
-            .then((key) => {
-                return onSetMilk(data, key);
+        saveMilkData(data)
+            .then((output) => {
+                return onSetMilk(output[0], output[1], output[2]);
             })
             .then(() => history.push(ROUTES.MILK_URLS.milk))
             .catch(console.log);
@@ -110,54 +93,51 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onS
     return (
         <>
             <Typography variant="h4" align="center">
-                Add Milk
-                </Typography>
+                {mode === 'edit' ? 'Edit Milk' : 'Add Milk'}
+            </Typography>
             <MyForm onSubmit={handleSubmit(onSubmit)}>
-                <Select
-                    style={{ width: '100%', marginTop: '10px' }}
-                    labelId="Customer Name"
+                <MySelect
+                    required
+                    labelName="Customer Name"
+                    labelId="customer-name"
                     name="customerName"
                     value={customerName}
                     onChange={handleCustName}
+                    error={!!errors.customerName}
+                    errorMessage={ErrorGenerator.getErrorMessage(errors, 'customerName')}
                 >
                     {customers.map(customer =>
                         <MenuItem key={customer.uid} value={customer.customerName}>{customer.customerName}</MenuItem>
                     )}
-                </Select>
-                <Select
-                    style={{ width: '100%', marginTop: '10px' }}
-                    labelId="Milk Type"
+                </MySelect>
+                <MySelect
+                    labelName="Milk Type"
+                    labelId="milk-type"
                     name="milkType"
                     value={milkType}
                     onChange={handleMilkType}
                 >
                     <MenuItem value="BM">BM</MenuItem>
                     <MenuItem value="CM">CM</MenuItem>
-                    <MenuItem value="BOTH">Both</MenuItem>
-                </Select>
+                    <MenuItem value="BCM">BCM</MenuItem>
+                </MySelect>
 
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <DatePicker
-                        disableFuture
-                        autoOk
-                        style={{ width: '100%' }}
-                        label="Date"
-                        name="date"
-                        format="MM/dd/yyyy"
-                        value={date}
-                        onChange={handleDate.bind(this, 'date')}
-                    />
-                </MuiPickersUtilsProvider>
+                <MyDatePicker
+                    label="Date"
+                    name="date"
+                    value={date}
+                    onChange={handleDate}
+                />
+
                 <MyInput
                     required
                     type="number"
                     name="milkQuantity"
                     label="Milk Quantity (in litres)"
                     style={{ width: '100%' }}
-                    defaultValue={milk.milkQuantity}
                     inputRef={
                         register({
-                            required: 'This field is required',
+                            required: true,
                             pattern: {
                                 value: /^[0-9.]*$/,
                                 message: 'Only numbers are allowed'
@@ -165,7 +145,7 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onS
                         })
                     }
                     error={!!errors.milkQuantity}
-                    helperText={getErrorMessage('milkQuantity')}
+                    helperText={ErrorGenerator.getErrorMessage(errors, 'milkQuantity')}
                 />
                 <MyInput
                     required
@@ -173,10 +153,9 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onS
                     name="milkFat"
                     label="Milk Fat"
                     style={{ width: '100%' }}
-                    defaultValue={milk.milkFat}
                     inputRef={
                         register({
-                            required: 'This field is required',
+                            required: true,
                             max: {
                                 value: 10,
                                 message: 'More than 10 is not allowed'
@@ -188,13 +167,13 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, uid, onS
                         })
                     }
                     error={!!errors.milkFat}
-                    helperText={getErrorMessage('milkFat')}
+                    helperText={ErrorGenerator.getErrorMessage(errors, 'milkFat')}
                 />
                 <FormControl component="fieldset" fullWidth>
                     <FormLabel component="legend">Time</FormLabel>
-                    <RadioGroup aria-label="time" style={{ flexDirection: 'row' }} defaultValue={milk.time}>
-                        <FormControlLabel name="time" value="Morning" inputRef={register} control={<Radio />} label="Morning" />
-                        <FormControlLabel name="time" value="Evening" inputRef={register} control={<Radio />} label="Evening" />
+                    <RadioGroup aria-label="time" name="time" style={{ flexDirection: 'row' }} defaultValue={milk.time} >
+                        <FormControlLabel value="Morning" inputRef={register} control={<Radio />} label="Morning" />
+                        <FormControlLabel value="Evening" inputRef={register} control={<Radio />} label="Evening" />
                     </RadioGroup>
                 </FormControl>
             </MyForm>
@@ -207,7 +186,7 @@ const mapStateToProps = state => ({
 })
 const mapDispatchToProps = dispatch => ({
     onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
-    onSetMilk: (milk) => dispatch({ type: ACTIONS.MILK_SET, milk }),
+    onSetMilk: (milk, date, uid) => dispatch({ type: ACTIONS.MILK_SET, milk, date, uid }),
 })
 
 export default compose(

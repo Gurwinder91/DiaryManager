@@ -1,4 +1,4 @@
-export class MyObject {
+export default class MyObject {
     obj = null;
     constructor(obj) {
         this.obj = obj;

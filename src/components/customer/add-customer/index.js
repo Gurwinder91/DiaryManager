@@ -1,6 +1,7 @@
-import 'date-fns';
+
 import React from "react";
 import { Typography } from '@material-ui/core';
+import moment from "moment";
 
 import CustomerForm from '../customer-form';
 
@@ -8,8 +9,7 @@ const customer = {
     customerName: '',
     mode: false,
     milkType: 'BM',
-    registeredDate: Date.now(),
-    dateofbirth: Date.now(),
+    registeredDate: moment().format('DD-MM-YYYY'),
     address: '',
     phoneNumber: ''
 }

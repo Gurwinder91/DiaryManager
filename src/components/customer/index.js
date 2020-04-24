@@ -17,7 +17,7 @@ class CustomerBase extends Component {
         loading: true
     }
     componentDidMount() {
-        this.props.firebase.customers().on('value', snapshot => {
+        this.props.firebase.customers().once('value', snapshot => {
             this.props.onSetCustomers(snapshot.val());
             this.setState({ loading: false })
         },
@@ -38,12 +38,15 @@ class CustomerBase extends Component {
                 <MyListSkeleton /> :
                 <>
                     <MyList>
+                        {this.props.customers.length ? 
                         <CustomersList 
                             customers={this.props.customers}
                             onRemoveCustomer={this.props.onRemoveCustomer}
                             firebase={this.props.firebase}
                             history={this.props.history}
                             />
+                            : null
+                        }
                     </MyList>
                     <AddCircleIcon whenClicked={this.navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
                 </>

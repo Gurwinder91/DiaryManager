@@ -7,7 +7,6 @@ export const required = (args) => {
 
 export const Validator = (wrappedComponent) => {
     return function wrappedRender(args) {
-        console.log(args);
         if (args.required) {
             
         }

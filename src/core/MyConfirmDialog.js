@@ -1,24 +1,25 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
+import { Dialog, DialogContent, DialogActions, Button, Typography } from '@material-ui/core';
 
-export function MyConfirmDialog(props) {
+export function MyConfirmDialog({ open, maxWidth, onDialogClose, data }) {
     return (
         <Dialog
             disableBackdropClick
             disableEscapeKeyDown
             aria-labelledby="confirmation-dialog-title"
-            maxWidth={props.maxWidth}
-            open={props.open}
+            maxWidth={maxWidth}
+            open={open}
         >
-            <DialogTitle id="confirmation-dialog-title">Confirmation</DialogTitle>
             <DialogContent dividers>
-                {props.children}
+                <Typography variant="body1" component="div" color="textPrimary">
+                    Delete this entry?
+                </Typography>
             </DialogContent>
             <DialogActions>
-                <Button autoFocus onClick={props.dialogCancel} color="primary">
+                <Button autoFocus onClick={onDialogClose.bind(this, null)} color="primary">
                     Cancel
                 </Button>
-                <Button onClick={props.dialogOk} color="primary">
+                <Button onClick={onDialogClose.bind(this, data)} color="primary">
                     Ok
                 </Button>
             </DialogActions>

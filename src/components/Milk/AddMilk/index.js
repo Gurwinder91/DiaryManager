@@ -1,18 +1,22 @@
 
 import React from 'react';
+import moment from 'moment';
+
 import MilkForm from '../MilkForm';
 
 export default () => {
-    const milk= {
-        date: Date.now(),
+    const time = moment().format('A');
+    const milk = {
+        date: moment(),
         customerName: '',
         milkType: 'BM',
-        time: 'Morning',
+        time: time === 'PM' ? 'Evening': 'Morning',
         milkFat: '',
         milkQuantity: ''
     }
+
     return (
-        <MilkForm milk={milk} />
+        <MilkForm milk={milk} mode='add' />
     )
 
 }

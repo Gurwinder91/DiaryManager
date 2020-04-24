@@ -41,7 +41,6 @@ class AdminPage extends Component {
     }
 
     dialogClosedHandler = (state, value) => {
-        console.log(state, value);
         this.setState({ openConfirmDialog: false });
         if (state === 'ok') {
             this.deleteUserEntry();
@@ -65,8 +64,7 @@ class AdminPage extends Component {
                 </List>
                 <MyConfirmDialog
                     maxWidth="xs"
-                    dialogOk={this.dialogClosedHandler.bind(this, 'ok')}
-                    dialogCancel={this.dialogClosedHandler.bind(this, 'cancel')}
+                    onDialogClose={this.dialogClosedHandler}
                     open={this.state.openConfirmDialog}>
 
                     <Typography variant="body1" component="div" color="textPrimary">

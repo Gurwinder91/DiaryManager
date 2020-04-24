@@ -1,110 +1,116 @@
 
-import React, { Component } from 'react';
-import { withRouter } from "react-router-dom";
+import React from 'react';
+import { useHistory } from "react-router-dom";
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
-
-import { Typography } from '@material-ui/core';
+import moment from 'moment';
 
 import { withFirebase } from '../Firebase';
 import AddMilk from './AddMilk';
 import EditMilk from './EditMilk';
 import MilkList from './MilkList';
-import { MyList, AddCircleIcon, MyConfirmDialog } from '../../core';
+import { MyList, AddCircleIcon, MyListSkeleton } from '../../core';
+import * as ROUTES from '../../constants/routes';
+import MilkExpensionPanel from './MilkExpensionPanel';
+import MilkFilters from './MilkFilters';
 import * as ACTIONS from '../../actions';
 import { MyObject } from '../../utilty';
+import MilkSkeleton from './MilkSkeleton';
 
-class MilkBase extends Component {
-    state = {
-        openConfirmDialog: false,
-        selectedMilk: {}
-    }
+const todayDate = moment();
 
-    componentDidMount() {
-        this.props.firebase.milks().on('value', snapshot => {
-            this.props.onSetMilks(snapshot.val())
-        });
-    }
+const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
+    const history = useHistory();
+    const [loading, setLoading] = React.useState(false);
+    const [date, setDate] = React.useState(todayDate);
+    const [time, setTime] = React.useState('All');
 
-    componentWillUnmount() {
-        this.props.firebase.milks().off();
-    }
+    React.useEffect(() => {
+        setLoading(true);
+        const formattedDate = getFormattedDate(date);
+        firebase.milks().child(formattedDate).on('value', snapshot => {
+            onSetMilks(snapshot.val(), formattedDate);
+            setLoading(false);
+        }, () => setLoading(false));
 
-    navigateTo = (to) => {
-        this.props.history.push(`/milk/${to}/`);
-    }
+        return () => firebase.milks().off();
+    }, [date])
 
+    const calculateMilkMath = (milksToCalc) => {
+        const BMMilks = milksToCalc.filter(item => item.milkType === 'BM').map(item => Number(item.milkQuantity));
+        const CMMilks = milksToCalc.filter(item => item.milkType === 'CM').map(item => Number(item.milkQuantity));
+        const BCMMilks = milksToCalc.filter(item => item.milkType === 'BCM').map(item => Number(item.milkQuantity));
+        const totalMilks = milksToCalc.map(item => Number(item.milkQuantity));
 
-    deleteIconClickHandler = (id) => {
-        const milks = [...this.state.milk];
-        const milk = milks.find(m => m.id === id);
-        this.setState({ selectedMilk: milk, openConfirmDialog: true });
-    }
-
-    deleteMilkEntry = () => {
-        const selectedMilk = this.state.selectedMilk;
-        const milk = [...this.state.milk];
-
-        const requiredMilk = milk.filter(m => m.id !== selectedMilk.id);
-        this.setState({ milk: requiredMilk })
-    }
-
-    dialogClosedHandler = (state, value) => {
-        console.log(state, value);
-        this.setState({ openConfirmDialog: false });
-        if (state === 'ok') {
-            this.deleteMilkEntry();
+        const milkMath = {
+            total: calculateSum(totalMilks) || 0,
+            BMTotal: calculateSum(BMMilks) || 0,
+            CMTotal: calculateSum(CMMilks) || 0,
+            BCMTotal: calculateSum(BCMMilks) || 0,
         }
+
+        return milkMath;
     }
 
+    const calculateSum = (arr) => {
+        return arr.reduce((a, b) => a + b, 0);
+    }
 
-    render() {
+    const getFormattedDate = (date) => {
+        return date.format('DD-MM-YYYY');
+    }
+
+    const navigateTo = () => {
+        history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`);
+    }
+
+    const renderContent = () => {
+        let [ ...milks ] = getMilksByDate(getFormattedDate(date));
+        if (time !== 'All') {
+            milks = milks.filter(item => item.time === time);
+        }
+        const milkMath = calculateMilkMath(milks);
+
         return (
             <>
+                {milks.length ? <MilkExpensionPanel milkMath={milkMath} /> : null}
                 <MyList>
-                    <MilkList
-                        milks={this.props.milks}
-                        customers={this.props.customers}
-                        firebase={this.props.firebase}
-                        history={this.props.history}
-                        onRemoveMilk={this.props.onRemoveMilk}
-                         />
+                    {
+                        milks.length ? <MilkList milks={milks} /> : null
+                    }
                 </MyList>
-                <AddCircleIcon whenClicked={this.navigateTo.bind(this, 'add')} />
-                <MyConfirmDialog
-                    maxWidth="xs"
-                    dialogOk={this.dialogClosedHandler.bind(this, 'ok')}
-                    dialogCancel={this.dialogClosedHandler.bind(this, 'cancel')}
-                    open={this.state.openConfirmDialog}>
+            </>)
+    }
 
-                    <Typography variant="body1" component="div" color="textPrimary">
-                        Are you sure want to remove&nbsp;
-                        <Typography variant="h6" component="span">
-                            {this.state.selectedMilk.customerName}
-                        </Typography>
-                        &nbsp;milk?
-                    </Typography>
-                </MyConfirmDialog>
+    return (
+        loading
+            ?
+            <MilkSkeleton />
+            :
+            <>
+                <MilkFilters date={date} time={time} setDate={setDate} setTime={setTime} />
+
+                {renderContent()}
+                <AddCircleIcon whenClicked={navigateTo} />
             </>
-        )
+    )
+}
+
+
+const mapStateToProps = (state, props) => {
+    return {
+        getMilksByDate: (date) => state.milkState.milks ? new MyObject(state.milkState.milks[date]).toArray() : [],
     }
 }
 
-const mapStateToProps = state => ({
-    milks: new MyObject(state.milkState.milks).toArray()
-})
 
 const mapDispatchToProps = dispatch => ({
-    onSetMilks: (milks) => dispatch({ type: ACTIONS.MILKS_SET, milks }),
-    onRemoveMilk: (uid) => dispatch({ type: ACTIONS.MILK_REMOVE, uid })
+    onSetMilks: (milks, date) => dispatch({ type: ACTIONS.MILKS_SET_BY_DATE, milks, date }),
 })
 
 const Milk = compose(
-    withRouter,
     withFirebase,
-    connect(
-        mapStateToProps,
-        mapDispatchToProps)
+    connect(mapStateToProps, mapDispatchToProps)
 )(MilkBase);
 
 export { Milk, AddMilk, EditMilk };

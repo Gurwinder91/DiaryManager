@@ -2,7 +2,7 @@ import * as ACTIONS from '../actions';
 import { MyObject } from '../utilty';
 
 const INITIAL_STATE = {
-    customers: {}
+    customers: null
 };
 
 const applySetCustomers = (state, action) => ({
@@ -30,7 +30,10 @@ function customerReducer(state = INITIAL_STATE, action) {
             return applySetCustomers(state, action);
         }
         case ACTIONS.CUSTOMER_SET: {
-            return applySetCustomer(state, action);
+            console.log(state);
+            const newState = applySetCustomer(state, action);
+            console.log("new", newState);
+            return newState;
         }
         case ACTIONS.CUSTOMER_REMOVE: {
             return applyRemoveCustomer(state, action);

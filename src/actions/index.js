@@ -3,6 +3,7 @@ export const USERS_SET = 'USERS_SET';
 export const USER_REMOVE = 'USER_REMOVE'; 
 export const AUTH_USER_SET = "AUTH_USER_SET";
 export const MILK_SET = 'MILK_SET';
+export const MILKS_SET_BY_DATE = 'MILKS_SET_BY_DATE';
 export const MILKS_SET = 'MILKS_SET';
 export const MILK_REMOVE = 'MILK_REMOVE'; 
 export const CUSTOMER_SET = 'CUSTOMER_SET';

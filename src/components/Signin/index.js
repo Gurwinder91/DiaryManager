@@ -8,6 +8,7 @@ import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 import { MyForm, MyInput } from '../../core';
+import { ErrorGenerator } from '../../utilty';
 
 const SignInPage = () => (
   <div>
@@ -32,26 +33,6 @@ const SignInFormBase = ({ firebase, history }) => {
       .catch(console.log);
   };
 
-  const getErrorMessage = (inputName) => {
-    let message = '';
-    if (errors[inputName]) {
-      switch (errors[inputName].type) {
-        case 'required':
-          message = errors[inputName].message;
-          break;
-        case 'pattern':
-          message = errors[inputName].message;
-          break;
-        case 'minLength':
-          message = errors[inputName].message;
-          break;
-        default:
-          break;
-      }
-    }
-    return message;
-  }
-
   return (
     <MyForm onSubmit={handleSubmit(onSubmit)}>
       <MyInput
@@ -60,14 +41,14 @@ const SignInFormBase = ({ firebase, history }) => {
         style={{ width: '100%' }}
         inputRef={
           register({
-            required: 'This field is required',
+            required: true,
             pattern: {
               value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
               message: 'Email address is not valid'
             }
           })}
         error={!!errors.email}
-        helperText={getErrorMessage('email')}
+        helperText={ErrorGenerator.getErrorMessage(errors, 'email')}
       />
 
       <MyInput
@@ -77,14 +58,14 @@ const SignInFormBase = ({ firebase, history }) => {
         label="Password"
         style={{ width: '100%' }}
         inputRef={register({
-          required: 'This field is required',
+          required: true,
           minLength: {
             value: 8,
             message: "Password must have at least 8 characters"
           },
         })}
         error={!!errors.password}
-        helperText={getErrorMessage('password')}
+        helperText={ErrorGenerator.getErrorMessage(errors, 'password')}
       />
     </MyForm>
   );

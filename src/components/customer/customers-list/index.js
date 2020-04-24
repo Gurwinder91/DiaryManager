@@ -8,7 +8,7 @@ import * as ROUTES from '../../../constants/routes';
 export default ({ customers, history, firebase, onRemoveCustomer }) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
-    const [selectedCustomer, setSelectedCustomer] = React.useState({});
+    const [dialogValue, setDialogValue] = React.useState('');
 
     const removeCustomer = (uid) => {
         firebase.customers().child(uid).remove()
@@ -19,7 +19,7 @@ export default ({ customers, history, firebase, onRemoveCustomer }) => {
         switch (actionType) {
             case 'delete':
                 setOpen(true);
-                setSelectedCustomer(customer);
+                setDialogValue(customer);
                 break;
             case 'edit':
                 history.push(`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}${customer.uid}`);
@@ -29,10 +29,10 @@ export default ({ customers, history, firebase, onRemoveCustomer }) => {
         }
     }
 
-    const dialogClosedHandler = (state, value) => {
+    const dialogClosedHandler = (output) => {
         setOpen(false);
-        if (state === 'ok') {
-            removeCustomer(selectedCustomer.uid);
+        if (output) {
+            removeCustomer(output.uid);
         }
     }
 
@@ -56,7 +56,7 @@ export default ({ customers, history, firebase, onRemoveCustomer }) => {
                                     {`${customer.customerName}`}
                                 </Typography>
                             }
-                            secondary={`+91 ${customer.phoneNumber}, ${new Date(customer.registeredDate).toLocaleDateString()}`}
+                            secondary={`+91 ${customer.phoneNumber}, ${customer.registeredDate}`}
                         />
                         <ActionIcon whenMenuClosed={onMenuclosed.bind(this, customer)} />
                     </ListItem>
@@ -64,17 +64,9 @@ export default ({ customers, history, firebase, onRemoveCustomer }) => {
                 </Fragment>
             )}
             <MyConfirmDialog
-                maxWidth="xs"
-                dialogOk={dialogClosedHandler.bind(this, 'ok')}
-                dialogCancel={dialogClosedHandler.bind(this, 'cancel')}
+                onDialogClose={dialogClosedHandler}
+                data={dialogValue}
                 open={open}>
-
-                <Typography variant="body1" component="div" color="textPrimary">
-                    Are you sure want to remove&nbsp;
-                        <Typography variant="h6" component="span">
-                        {selectedCustomer.customerName}
-                    </Typography>?
-                    </Typography>
             </MyConfirmDialog>
         </>
     )

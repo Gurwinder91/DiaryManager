@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import Main from "./components/main";
 import { withAuthentication } from './components/Session';
 import { MySwipeableDrawer } from "./core";
+import * as ROUTES from "./constants/routes";
 
 export class App extends Component {
 
@@ -17,26 +18,31 @@ export class App extends Component {
             navList: [
                 {
                     text: 'Customer',
-                    link: '/customer/',
+                    link: ROUTES.CUSTOMER_URLS.customer,
                     id: 2
                 },
                 {
                     text: 'Add Customer',
-                    link: '/customer/add/',
+                    link: `${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.add}`,
                     id: 4
                 }, {
                     text: 'Milk',
-                    link: '/milk/',
+                    link: ROUTES.MILK_URLS.milk,
                     id: 5
                 }, {
                     text: 'Add Milk',
-                    link: '/milk/add/',
+                    link: `${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`,
                     id: 6
                 },
                 {
                     text: 'Admin',
-                    link: '/admin',
+                    link: ROUTES.ADMIN,
                     id: 7
+                },
+                {
+                    text: 'Payment Calculator',
+                    link: ROUTES.PAYMENT_CALCULATOR,
+                    id: 8
                 }
             ]
         }

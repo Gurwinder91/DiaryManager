@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { IconButton, AppBar, Toolbar, Typography, makeStyles, Link, Button } from '@material-ui/core';
+import { IconButton, AppBar, Toolbar, Typography, makeStyles, Link } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import { HideOnSlide } from '../../core';
@@ -50,9 +50,5 @@ const Header = ({ firebase, authUser, menuIconClick }) => {
         </HideOnSlide>
     )
 }
-
-const mapStateToProps = state => ({
-    authUser: state.sessionState.authUser,
-});
 
 export default Header;
