@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogActions, Button, Typography } from '@material-ui/core';
 
-export function MyConfirmDialog({ open, maxWidth, onDialogClose, data }) {
+export function MyConfirmDialog({ open, maxWidth, onDialogClose, data, message }) {
     return (
         <Dialog
             disableBackdropClick
@@ -12,7 +12,7 @@ export function MyConfirmDialog({ open, maxWidth, onDialogClose, data }) {
         >
             <DialogContent dividers>
                 <Typography variant="body1" component="div" color="textPrimary">
-                    Delete this entry?
+                    {message ? message : 'Delete this entry?'}
                 </Typography>
             </DialogContent>
             <DialogActions>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { List, Typography } from '@material-ui/core';
@@ -9,76 +9,69 @@ import UsersList from './UsersList';
 import * as ACTIONS from '../../actions';
 import { MyObject } from '../../utilty';
 
-const INITIAL_STATE = {
-    selectedUser: {},
-    openConfirmDialog: false
-};
+const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
+    const [open, setOpen] = React.useState(false);
+    const [dialogData, setDialogData] = React.useState({});
 
-class AdminPage extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { ...INITIAL_STATE };
-    }
-
-    componentDidMount() {
-        this.props.firebase.users().on('value', snapshot => {
-            this.props.onSetUsers(snapshot.val());
+    React.useEffect(() => {
+        firebase.users().once('value', snapshot => {
+            onSetUsers(snapshot.val());
         });
+
+        return () => firebase.users().off();
+    }, [firebase]);
+
+    const disableUserActionHandler = (user) => {
+        setDialogData(user);
+        setOpen(true);
     }
 
-    componentWillUnmount() {
-        this.props.firebase.users().off();
+    const deleteUserEntry = (user) => {
+        console.log(user);
+        fetch('https://us-central1-dairy-management-system-9191.cloudfunctions.net/disableUser',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: user.email, disabled: user.disabled })
+            })
+            .then(() => firebase.users().child(user.uid).update({ disabled: user.disabled }))
+            .then(() => onSetUser(user, user.uid))
+            .catch(console.log);
     }
 
-    deleteUserActionHandler = (user) => {
-        this.setState({ selectedUser: user, openConfirmDialog: true });
-    }
-
-    deleteUserEntry = () => {
-        const selectedUser = this.state.selectedUser; 
-        this.props.firebase.user(selectedUser.uid).remove();
-        this.props.onRemoveUsers(selectedUser.uid);
-    }
-
-    dialogClosedHandler = (state, value) => {
-        this.setState({ openConfirmDialog: false });
-        if (state === 'ok') {
-            this.deleteUserEntry();
+    const dialogClosedHandler = (user) => {
+        setOpen(false);
+        if (user) {
+            deleteUserEntry(user);
+        } else {
+            const {uid, ...newUser} = dialogData;
+            newUser.disabled = !newUser.disabled;
+            onSetUser(newUser, uid)
         }
     }
 
-    render() {
-
-        return (
-            <>
-                <Typography variant="h4" align="center">
-                    Users List
+    return (
+        <>
+            <Typography variant="h4" align="center">
+                Users List
                 </Typography>
-                <List>
-                    {this.props.users.length ?
-                        <UsersList users={this.props.users} deleteUser={this.deleteUserActionHandler} />
-                        : <Typography variant="body1" align="center">
-                            No users found
-                        </Typography>
-                    }
-                </List>
-                <MyConfirmDialog
-                    maxWidth="xs"
-                    onDialogClose={this.dialogClosedHandler}
-                    open={this.state.openConfirmDialog}>
-
-                    <Typography variant="body1" component="div" color="textPrimary">
-                        Are you sure want to remove&nbsp;
-                        <Typography variant="h6" component="span">
-                            {this.state.selectedUser.username}
-                        </Typography>
-                        &nbsp;milk?
+            <List>
+                {users.length ?
+                    <UsersList users={users} disableUser={disableUserActionHandler} />
+                    : <Typography variant="body1" align="center">
+                        No users found
                     </Typography>
-
-                </MyConfirmDialog>
-            </>
-        );
-    }
+                }
+            </List>
+            <MyConfirmDialog
+                data={dialogData}
+                onDialogClose={dialogClosedHandler}
+                message="Are you sure want to disable this user?"
+                open={open} />
+        </>
+    );
 }
 
 
@@ -88,7 +81,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     onSetUsers: users => dispatch({ type: ACTIONS.USERS_SET, users }),
-    onRemoveUsers: uid => dispatch({ type: ACTIONS.USER_REMOVE, uid })
+    onSetUser: (user, uid) => dispatch({ type: ACTIONS.USER_SET, user, uid })
 });
 
 export default compose(

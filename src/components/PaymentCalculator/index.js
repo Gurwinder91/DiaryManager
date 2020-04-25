@@ -72,7 +72,7 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks }) => {
         return arr.reduce(fn, 0);
     }
 
-    const getCustomerName = (customerId) => customers[customerId].customerName;
+    const getCustomerName = (customerId) => customers ? customers[customerId].customerName: '';
 
     const renderPayments = () => {
         let elements = [];

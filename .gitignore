@@ -14,6 +14,7 @@
 
 # ignore environment file
 /.env
+/.firebase/
 
 # misc
 .DS_Store

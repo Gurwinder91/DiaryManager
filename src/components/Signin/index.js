@@ -4,7 +4,6 @@ import { compose } from 'recompose';
 import { Typography } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
 
-import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 import { MyForm, MyInput } from '../../core';
@@ -16,7 +15,6 @@ const SignInPage = () => (
       Authenticate
     </Typography>
     <SignInForm />
-    <SignUpLink />
   </div>
 );
 

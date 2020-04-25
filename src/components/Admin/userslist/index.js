@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction, IconButton } from '@material-ui/core';
+import { ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction, IconButton, Switch} from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PersonIcon from '@material-ui/icons/Person';
 
@@ -17,9 +17,12 @@ export default (props) => {
                     secondary={user.email}
                 />
                 <ListItemSecondaryAction>
-                    <IconButton edge="end" aria-label="delete" onClick={props.deleteUser.bind(null, user)}>
-                        <DeleteIcon />
-                    </IconButton>
+                    <Switch
+                        edge="end"
+                        onChange={props.disableUser.bind(null, {...user, disabled: !user.disabled})}
+                        checked={user.disabled}
+                        inputProps={{ 'aria-labelledby': 'active-inactive-user' }}
+                    />
                 </ListItemSecondaryAction>
             </ListItem >
         ))

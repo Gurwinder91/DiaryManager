@@ -80,8 +80,13 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
     }
 
     const calculateMilkPrice = (milk) => {
-        const cream = milk.milkQuantity * milk.milkFat;
-        return (cream * milk.milkRate / 10).toFixed(2);
+        if (milk.milkType === 'BM') {
+            const cream = milk.milkQuantity * milk.milkFat;
+            return (cream * milk.milkRate / 10).toFixed(2);
+        } else {
+            return 0;
+        }
+
     }
 
     const onSubmit = (data) => {
@@ -150,8 +155,8 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
                         register({
                             required: true,
                             pattern: {
-                                value: /^[0-9.]*$/,
-                                message: 'Only numbers are allowed'
+                                value: /^\d*\.?\d$/,
+                                message: 'Only numbers and one digit after decimal are allowed'
                             }
                         })
                     }
@@ -172,8 +177,8 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
                                 message: 'More than 10 is not allowed'
                             },
                             pattern: {
-                                value: /^[0-9.]*$/,
-                                message: 'Only numbers are allowed'
+                                value: /^[1-9]\d{0,1}(\.\d{0,1})?$/,
+                                message: 'Only numbers and one digit after decimal are allowed'
                             }
                         })
                     }
