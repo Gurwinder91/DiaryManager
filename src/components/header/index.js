@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { IconButton, AppBar, Toolbar, Typography, makeStyles, Link } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import { connect } from 'react-redux';
 
 import { HideOnSlide } from '../../core';
 import RightHeader from './RightHeader';
@@ -25,23 +26,24 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-const Header = ({ firebase, authUser, menuIconClick }) => {
+const Header = ({ authUser, menuIconClick }) => {
     const classes = useStyles();
 
     return (
         <HideOnSlide>
             <AppBar className={classes.root}>
                 <Toolbar>
-                    <IconButton
+                    {authUser ? <IconButton
                         edge="start"
                         onClick={menuIconClick.bind(null, true)}
                         className={classes.menuButton}
                         color="inherit" aria-label="menu">
                         <MenuIcon />
-                    </IconButton>
+                    </IconButton> : null}
+
                     <Typography variant="h6" className={classes.title}>
                         <Link component={NavLink} to="/" className={classes.link}>
-                            Diary Manager
+                            Milk Diary Manager
                         </Link>
                     </Typography>
                     <RightHeader />
@@ -51,4 +53,8 @@ const Header = ({ firebase, authUser, menuIconClick }) => {
     )
 }
 
-export default Header;
+const mapStateToProps = state => ({
+    authUser: state.sessionState.authUser,
+});
+
+export default connect(mapStateToProps)(Header);

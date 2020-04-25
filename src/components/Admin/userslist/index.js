@@ -1,11 +1,10 @@
 import React from 'react';
 import { ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction, IconButton, Switch} from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
 import PersonIcon from '@material-ui/icons/Person';
 
-export default (props) => {
+export default ({users, disableUser}) => {
     return (
-        props.users.map(user =>
+        users.map(user =>
             <ListItem key={user.uid} >
                 <ListItemAvatar>
                     <Avatar>
@@ -13,13 +12,13 @@ export default (props) => {
                     </Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                    primary={user.userName}
+                    primary={user.name}
                     secondary={user.email}
                 />
                 <ListItemSecondaryAction>
                     <Switch
                         edge="end"
-                        onChange={props.disableUser.bind(null, {...user, disabled: !user.disabled})}
+                        onChange={disableUser.bind(null, {...user, disabled: !user.disabled})}
                         checked={user.disabled}
                         inputProps={{ 'aria-labelledby': 'active-inactive-user' }}
                     />

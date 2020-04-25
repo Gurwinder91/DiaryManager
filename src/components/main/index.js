@@ -11,12 +11,12 @@ import { Milk, AddMilk, EditMilk } from '../Milk';
 import Footer from '../Footer';
 
 import * as ROUTES from '../../constants/routes';
-import SignUpPage from "../SignUp";
 import AdminPage from "../Admin";
 import SignInPage from "../Signin";
 import PaymentCalculator from "../PaymentCalculator";
 import { withFirebase } from "../Firebase";
 import * as ACTIONS from '../../actions';
+import AddUser from "../AddUser";
 
 const Main = ({ firebase, onSetCustomers }) => {
 
@@ -35,7 +35,7 @@ const Main = ({ firebase, onSetCustomers }) => {
                     <h1> Welcome Gurwinder</h1>
                 )
             } />
-            <Route path={ROUTES.SIGN_UP} exact component={SignUpPage} />
+            <Route path={ROUTES.ADD_USER} exact component={AddUser} />
             <Route path={ROUTES.SIGN_IN} exact component={SignInPage} />
             <Route path={ROUTES.ADMIN} exact component={AdminPage} />
             <Route path={ROUTES.CUSTOMER_URLS.customer} exact component={Customer} />

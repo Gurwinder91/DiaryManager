@@ -9,6 +9,7 @@ import { withFirebase } from '../Firebase';
 import Filter from './Filter';
 import { MyList } from '../../core';
 import * as ACTIONS from '../../actions';
+import { withAuthorization } from '../Session';
 
 const PaymentCalculator = ({ customers, firebase, onSetMilks, milks }) => {
     const [payments, setPayments] = React.useState([]);
@@ -72,12 +73,12 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks }) => {
         return arr.reduce(fn, 0);
     }
 
-    const getCustomerName = (customerId) => customers ? customers[customerId].customerName: '';
+    const getCustomerName = (customerId) => customers ? customers[customerId].customerName : '';
 
     const renderPayments = () => {
         let elements = [];
         for (let entry of payments.entries()) {
-            elements.push( <Fragment key={entry[0]}>
+            elements.push(<Fragment key={entry[0]}>
                 <ListItem >
                     <ListItemText
                         primary={getCustomerName(entry[0])}
@@ -125,6 +126,7 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default compose(
+    withAuthorization(authUser => !!authUser),
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps)
 )(PaymentCalculator);

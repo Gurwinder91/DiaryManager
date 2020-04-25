@@ -16,6 +16,7 @@ import MilkFilters from './MilkFilters';
 import * as ACTIONS from '../../actions';
 import { MyObject } from '../../utilty';
 import MilkSkeleton from './MilkSkeleton';
+import { withAuthorization } from '../Session';
 
 const todayDate = moment();
 
@@ -108,6 +109,7 @@ const mapDispatchToProps = dispatch => ({
 })
 
 const Milk = compose(
+    withAuthorization(authUser => !!authUser),
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps)
 )(MilkBase);

@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { withFirebase } from '../../Firebase';
 import CustomerForm from '../customer-form';
 import * as ACTIONS from '../../../actions';
+import { withAuthorization } from '../../Session';
 
 class EditCustomer extends Component {
 
@@ -55,6 +56,7 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default compose(
+    withAuthorization(authUser => !!authUser),
     withRouter,
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps)

@@ -7,6 +7,7 @@ import moment from 'moment';
 import * as ACTIONS from '../../../actions';
 import MilkForm from '../MilkForm';
 import { withFirebase } from '../../Firebase';
+import { withAuthorization } from '../../Session';
 
 const EditMilk = ({ firebase, match, onSetMilk, milk }) => {
 
@@ -32,7 +33,7 @@ const EditMilk = ({ firebase, match, onSetMilk, milk }) => {
 
 }
 
-const mapStateToProps = (state, {match}) => {
+const mapStateToProps = (state, { match }) => {
     let milk = {};
     if (state.milkState.milks) {
         milk = state.milkState.milks[match.params.date][match.params.uid];
@@ -50,6 +51,7 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default compose(
+    withAuthorization(authUser => !!authUser),
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps)
 )(EditMilk)

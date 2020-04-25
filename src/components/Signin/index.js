@@ -26,7 +26,7 @@ const SignInFormBase = ({ firebase, history }) => {
     firebase
       .doSignInWithEmailAndPassword(data.email, data.password)
       .then(() => {
-        history.push(ROUTES.LANDING);
+        history.push(ROUTES.MILK_URLS.milk);
       })
       .catch(console.log);
   };

@@ -8,26 +8,27 @@ import { withFirebase } from '../../Firebase';
 import * as ROUTES from '../../../constants/routes';
 
 const RightHeader = ({ authUser, firebase }) => {
-    // const history = useHistory();
+    const history = useHistory();
     const location = useLocation();
 
-    // const signOut = () => {
-    //     firebase.doSignOut();
-    //     history.push(ROUTES.SIGN_IN);
-    // }
-    
+    const signOut = () => {
+        firebase.doSignOut();
+        history.push(ROUTES.SIGN_IN);
+    }
+
     return (
         <>
             {
-                (location.pathname.includes(ROUTES.SIGN_IN) || location.pathname.includes(ROUTES.SIGN_UP)) ?
-                    null
-                    : !authUser && <Button variant="contained" color="secondary" component={NavLink} to={ROUTES.SIGN_IN}>Signin</Button>
+                (location.pathname.includes(ROUTES.SIGN_IN)) ? null :
+                    authUser ? 
+                    <Button variant="contained" color="secondary" onClick={signOut}>Signout</Button>
+                    : 
+                    <Button variant="contained" color="secondary" component={NavLink} to={ROUTES.SIGN_IN}>Signin</Button>
             }
         </>
     )
 }
 
-//authUser && <Button color="secondary" onClick={signOut}>Signout</Button>
 const mapStateToProps = state => ({
     authUser: state.sessionState.authUser,
 });
@@ -35,5 +36,4 @@ const mapStateToProps = state => ({
 export default compose(
     withFirebase,
     connect(mapStateToProps)
-)
-(RightHeader);
+)(RightHeader);

@@ -4,6 +4,7 @@ import { Typography } from '@material-ui/core';
 import moment from "moment";
 
 import CustomerForm from '../customer-form';
+import { withAuthorization } from '../../Session';
 
 const customer = {
     customerName: '',
@@ -19,9 +20,10 @@ const AddCustomer = (props) => {
             <Typography variant="h4" align="center">
                 Add New Customer
                 </Typography>
-            <CustomerForm customer={customer}/>
+            <CustomerForm customer={customer} />
         </>
     )
 }
 
-export default AddCustomer;
+
+export default withAuthorization(authUser => !!authUser)(AddCustomer);

@@ -1,21 +1,29 @@
 import React from 'react';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
-import { List, Typography } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
+import { Typography } from '@material-ui/core';
 
 import { withFirebase } from '../Firebase';
-import { MyConfirmDialog } from '../../core';
+import { MyConfirmDialog, AddCircleIcon, MyList, MyListSkeleton } from '../../core';
 import UsersList from './UsersList';
 import * as ACTIONS from '../../actions';
+import * as CONSTANTS from '../../constants';
+import * as ROUTES from '../../constants/routes';
 import { MyObject } from '../../utilty';
+import { withAuthorization } from '../Session';
 
 const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
+    let history = useHistory();
     const [open, setOpen] = React.useState(false);
     const [dialogData, setDialogData] = React.useState({});
+    const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
+        setLoading(true);
         firebase.users().once('value', snapshot => {
             onSetUsers(snapshot.val());
+            setLoading(false);
         });
 
         return () => firebase.users().off();
@@ -28,7 +36,7 @@ const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
 
     const deleteUserEntry = (user) => {
         console.log(user);
-        fetch('https://us-central1-dairy-management-system-9191.cloudfunctions.net/disableUser',
+        fetch(`${CONSTANTS.BASE_URL}disable`,
             {
                 method: 'POST',
                 headers: {
@@ -46,7 +54,7 @@ const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
         if (user) {
             deleteUserEntry(user);
         } else {
-            const {uid, ...newUser} = dialogData;
+            const { uid, ...newUser } = dialogData;
             newUser.disabled = !newUser.disabled;
             onSetUser(newUser, uid)
         }
@@ -57,19 +65,21 @@ const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
             <Typography variant="h4" align="center">
                 Users List
                 </Typography>
-            <List>
-                {users.length ?
-                    <UsersList users={users} disableUser={disableUserActionHandler} />
-                    : <Typography variant="body1" align="center">
-                        No users found
-                    </Typography>
-                }
-            </List>
+            {loading ?
+                <MyListSkeleton /> :
+                <MyList>
+                    {users.length ?
+                        <UsersList users={users} disableUser={disableUserActionHandler} />
+                        : null
+                    }
+                </MyList>
+            }
             <MyConfirmDialog
                 data={dialogData}
                 onDialogClose={dialogClosedHandler}
                 message="Are you sure want to disable this user?"
                 open={open} />
+            <AddCircleIcon whenClicked={() => history.push(ROUTES.ADD_USER)} />
         </>
     );
 }
@@ -84,7 +94,11 @@ const mapDispatchToProps = dispatch => ({
     onSetUser: (user, uid) => dispatch({ type: ACTIONS.USER_SET, user, uid })
 });
 
+const condition = authUser => {
+   return !!authUser;
+}
 export default compose(
+    withAuthorization(condition),
     withFirebase,
     connect(
         mapStateToProps,

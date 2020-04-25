@@ -4,14 +4,15 @@ import moment from 'moment';
 
 import MilkForm from '../MilkForm';
 import MILK_RATES from '../milkRates';
+import { withAuthorization } from '../../Session';
 
-export default () => {
+const AddMilk = () => {
     const time = moment().format('A');
     const milk = {
         date: moment(),
         customerId: '',
         milkType: 'BM',
-        time: time === 'PM' ? 'Evening': 'Morning',
+        time: time === 'PM' ? 'Evening' : 'Morning',
         milkRate: MILK_RATES.BM,
         milkFat: '',
         milkQuantity: ''
@@ -22,3 +23,5 @@ export default () => {
     )
 
 }
+
+export default withAuthorization(authUser => !!authUser)(AddMilk);
