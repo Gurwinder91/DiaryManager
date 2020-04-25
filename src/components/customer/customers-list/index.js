@@ -1,12 +1,19 @@
 import React, { Fragment } from 'react';
+import { useHistory } from 'react-router-dom';
+import { compose } from 'recompose';
+import { connect } from 'react-redux';
 import { Divider, ListItem, ListItemAvatar, Avatar, ListItemText, Typography } from '@material-ui/core';
 
+import {withFirebase} from '../../Firebase';
 import useStyles from './style';
 import { ActionIcon, MyConfirmDialog } from '../../../core';
 import * as ROUTES from '../../../constants/routes';
+import * as ACTIONS from '../../../actions';
 
-export default ({ customers, history, firebase, onRemoveCustomer }) => {
+const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
     const classes = useStyles();
+    const history = useHistory();
+
     const [open, setOpen] = React.useState(false);
     const [dialogValue, setDialogValue] = React.useState('');
 
@@ -71,6 +78,19 @@ export default ({ customers, history, firebase, onRemoveCustomer }) => {
         </>
     )
 }
+
+
+
+const mapDispatchToProps = dispatch => ({
+    onRemoveCustomer: (uid) => dispatch({ type: ACTIONS.CUSTOMER_REMOVE, uid }),
+})
+
+export default compose(
+    withFirebase,
+    connect(
+        null,
+        mapDispatchToProps)
+)(CustomerList);
 
 
 

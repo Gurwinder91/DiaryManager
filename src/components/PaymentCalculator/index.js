@@ -10,7 +10,7 @@ import Filter from './Filter';
 import { MyList } from '../../core';
 import * as ACTIONS from '../../actions';
 
-const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
+const PaymentCalculator = ({ customers, firebase, onSetMilks, milks }) => {
     const [payments, setPayments] = React.useState([]);
 
     React.useEffect(() => {
@@ -28,9 +28,9 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
     const groupByCustomer = (arr) => {
         const map = new Map();
         arr.forEach((item) => {
-            const collection = map.get(item.customerName);
+            const collection = map.get(item.customerId);
             if (!collection) {
-                map.set(item.customerName, [item]);
+                map.set(item.customerId, [item]);
             } else {
                 collection.push(item);
             }
@@ -49,7 +49,7 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
                     date: date
                 };
 
-                milk = filterByCustomerName(filterObj, milk);
+                milk = filterByCustomerId(filterObj, milk);
 
                 if (milk) {
                     payments.push(milk);
@@ -60,9 +60,9 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
         return payments;
     }
 
-    const filterByCustomerName = (filterObj, milk) => {
-        if (filterObj.customerName !== 'All') {
-            return milk.customerName === filterObj.customerName ? milk : null;
+    const filterByCustomerId = (filterObj, milk) => {
+        if (filterObj.customerId !== 'All') {
+            return milk.customerId === filterObj.customerId ? milk : null;
         }
 
         return milk;
@@ -72,13 +72,15 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
         return arr.reduce(fn, 0);
     }
 
+    const getCustomerName = (customerId) => customers[customerId].customerName;
+
     const renderPayments = () => {
         let elements = [];
         for (let entry of payments.entries()) {
             elements.push( <Fragment key={entry[0]}>
                 <ListItem >
                     <ListItemText
-                        primary={entry[0]}
+                        primary={getCustomerName(entry[0])}
                         secondary={
                             <>
                                 <Typography variant="body1" component="span" style={{ display: 'block' }}>
@@ -113,6 +115,7 @@ const PaymentCalculator = ({ firebase, onSetMilks, milks }) => {
 
 const mapStateToProps = state => {
     return {
+        customers: state.customerState.customers,
         milks: state.milkState.milks,
     }
 }

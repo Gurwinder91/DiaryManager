@@ -12,7 +12,7 @@ import useStyles from './style';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 
-const MilkList = ({ milks, firebase, onRemoveMilk, date }) => {
+const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
 
     const history = useHistory();
     const classes = useStyles();
@@ -31,7 +31,7 @@ const MilkList = ({ milks, firebase, onRemoveMilk, date }) => {
                 setDialogValue(milk);
                 break;
             case 'edit':
-                history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}${milk.uid}`);
+                history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}${date}/${milk.uid}`);
                 break;
             default:
                 break;
@@ -56,6 +56,8 @@ const MilkList = ({ milks, firebase, onRemoveMilk, date }) => {
         }
     }
 
+    const getCustomerName = (customerId) => customers[customerId].customerName;
+
     return (
         <>
             {
@@ -76,7 +78,7 @@ const MilkList = ({ milks, firebase, onRemoveMilk, date }) => {
                                             variant="h6"
                                             color="textPrimary"
                                         >
-                                            {`${item.customerName}`}
+                                            {`${getCustomerName(item.customerId)}`}
                                         </Typography>
 
                                         <Typography component="span" className={classes.time}
@@ -114,6 +116,10 @@ const MilkList = ({ milks, firebase, onRemoveMilk, date }) => {
 
 }
 
+const mapStateToProps = state => ({
+    customers: state.customerState.customers,
+})
+
 const mapDispatchToProps = dispatch => ({
     onRemoveMilk: (date, uid) => dispatch({ type: ACTIONS.MILK_REMOVE, date, uid })
 })
@@ -121,6 +127,6 @@ const mapDispatchToProps = dispatch => ({
 export default compose(
     withFirebase,
     connect(
-        null,
+        mapStateToProps,
         mapDispatchToProps)
 )(MilkList);

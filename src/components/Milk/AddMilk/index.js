@@ -9,7 +9,7 @@ export default () => {
     const time = moment().format('A');
     const milk = {
         date: moment(),
-        customerName: '',
+        customerId: '',
         milkType: 'BM',
         time: time === 'PM' ? 'Evening': 'Morning',
         milkRate: MILK_RATES.BM,

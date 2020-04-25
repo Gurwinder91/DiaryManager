@@ -4,26 +4,16 @@ import moment from "moment";
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 
-import { withFirebase } from '../../Firebase';
-import { MyDatePicker, MySelect, MyInput } from '../../../core';
+import { MyDatePicker, MySelect } from '../../../core';
 import { MyObject } from '../../../utilty';
-import * as ACTIONS from '../../../actions';
 import useStyles from "./style";
 
-const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
+const FilterBase = ({ customers, onCalculate }) => {
     const classes = useStyles();
     const [startDate, setStartDate] = React.useState(moment());
     const [endDate, setEndDate] = React.useState(moment());
-    const [customerName, setCustomerName] = React.useState('All');
+    const [customerId, setCustomerId] = React.useState('All');
     const minDate = moment().subtract(1, 'months');
-
-    React.useEffect(() => {
-        firebase.customers().on('value', snapshot => {
-            onSetCustomers(snapshot.val())
-        });
-
-        return () => firebase.customers().off();
-    }, [firebase]);
 
     const handleStateDate = (date) => {
         setStartDate(date);
@@ -36,15 +26,15 @@ const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
         setEndDate(date);
     }
 
-    const handleCustomerName = (event) => {
-        setCustomerName(event.target.value);
+    const handleCustomerId = (event) => {
+        setCustomerId(event.target.value);
     }
 
     const calculateProxy = () => {
         const data = {
             startDate: startDate.format('DD-MM-YYYY'),
             endDate: endDate.format('DD-MM-YYYY'),
-            customerName: customerName,
+            customerId: customerId,
         };
 
         onCalculate(data);
@@ -77,13 +67,13 @@ const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
                     className={classes.customerName}
                     labelName="Customer Name"
                     labelId="customer-name"
-                    name="customerName"
-                    value={customerName}
-                    onChange={handleCustomerName}
+                    name="customerId"
+                    value={customerId}
+                    onChange={handleCustomerId}
                 >
                     <MenuItem value="All">All</MenuItem>
                     {customers.map(customer =>
-                        <MenuItem key={customer.uid} value={customer.customerName}>{customer.customerName}</MenuItem>
+                        <MenuItem key={customer.uid} value={customer.uid}>{customer.customerName}</MenuItem>
                     )}
                 </MySelect>
 
@@ -98,11 +88,7 @@ const FilterBase = ({ customers, firebase, onSetCustomers, onCalculate }) => {
 const mapStateToProps = state => ({
     customers: new MyObject(state.customerState.customers).toArray(),
 })
-const mapDispatchToProps = dispatch => ({
-    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
-})
 
 export default compose(
-    withFirebase,
-    connect(mapStateToProps, mapDispatchToProps)
+    connect(mapStateToProps)
 )(FilterBase);

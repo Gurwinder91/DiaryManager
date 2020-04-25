@@ -2,6 +2,7 @@ import React from 'react';
 
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
+import moment from 'moment';
 
 import * as ACTIONS from '../../../actions';
 import MilkForm from '../MilkForm';
@@ -35,7 +36,7 @@ const mapStateToProps = (state, {match}) => {
     let milk = {};
     if (state.milkState.milks) {
         milk = state.milkState.milks[match.params.date][match.params.uid];
-        milk = { ...milk, date: new Date(Number(match.params.date)) };
+        milk = { ...milk, date: moment(match.params.date, 'DD-MM-YYYY') };
     }
 
     return {

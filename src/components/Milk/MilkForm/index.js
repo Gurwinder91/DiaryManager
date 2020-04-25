@@ -23,33 +23,26 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
     });
     const [milkType, setMilkType] = React.useState('BM');
     const [date, setDate] = React.useState(moment());
-    const [customerName, setCustomerName] = React.useState('');
+    const [customerId, setCustomerId] = React.useState('');
 
 
     React.useEffect(() => {
-        firebase.customers().on('value', snapshot => {
-            onSetCustomers(snapshot.val())
-        });
-
         register({ name: "milkType" });
         register({ name: "date" });
-        register({ name: "customerName" }, { required: true });
+        register({ name: "customerId" }, { required: true });
 
-        return () => {
-            firebase.customers().off();
-            firebase.milks().off();
-        }
+        return () => firebase.milks().off();
     }, [register, firebase]);
 
     React.useEffect(() => {
         if (Object.keys(milk).length) {
             setValue('milkType', milk.milkType);
             setValue('date', milk.date.format('DD-MM-YYYY'));
-            setValue('customerName', milk.customerName);
+            setValue('customerId', milk.customerId);
 
             setMilkType(milk.milkType);
             setDate(milk.date);
-            setCustomerName(milk.customerName);
+            setCustomerId(milk.customerId);
         }
     }, [milk])
 
@@ -66,10 +59,10 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
         setMilkType(value);
     }
 
-    const handleCustName = option => {
+    const handleCustomerId = option => {
         const value = option.target.value;
-        setValue('customerName', value);
-        setCustomerName(value);
+        setValue('customerId', value);
+        setCustomerId(value);
     }
 
     const saveMilkData = (data) => {
@@ -110,14 +103,14 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
                     required
                     labelName="Customer Name"
                     labelId="customer-name"
-                    name="customerName"
-                    value={customerName}
-                    onChange={handleCustName}
-                    error={!!errors.customerName}
-                    errorMessage={ErrorGenerator.getErrorMessage(errors, 'customerName')}
+                    name="customerId"
+                    value={customerId}
+                    onChange={handleCustomerId}
+                    error={!!errors.customerId}
+                    errorMessage={ErrorGenerator.getErrorMessage(errors, 'customerId')}
                 >
                     {customers.map(customer =>
-                        <MenuItem key={customer.uid} value={customer.customerName}>{customer.customerName}</MenuItem>
+                        <MenuItem key={customer.uid} value={customer.uid}>{customer.customerName}</MenuItem>
                     )}
                 </MySelect>
                 <MySelect
@@ -135,6 +128,7 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
                     label="Date"
                     name="date"
                     value={date}
+                    disabled={mode === 'edit'}
                     onChange={handleDate}
                 />
 
@@ -202,7 +196,6 @@ const mapStateToProps = state => ({
     customers: new MyObject(state.customerState.customers).toArray(),
 })
 const mapDispatchToProps = dispatch => ({
-    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
     onSetMilk: (milk, date, uid) => dispatch({ type: ACTIONS.MILK_SET, milk, date, uid }),
 })
 
