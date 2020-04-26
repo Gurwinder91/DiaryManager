@@ -15,17 +15,15 @@ import { MyObject, ErrorGenerator } from '../../../utilty';
 import { withFirebase } from '../../Firebase';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
-import MILK_RATES from '../milkRates';
 
-const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) => {
+const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid, onSetCustomers }) => {
     const { register, handleSubmit, errors, setValue } = useForm({
         defaultValues: { ...milk }
     });
     const [milkType, setMilkType] = React.useState('BM');
     const [date, setDate] = React.useState(moment());
     const [customerId, setCustomerId] = React.useState('');
-    const [openSnackbar, setOpenSnackbar] = React.useState(false);
-
+    const [displaySNF, setDisplaySNF] = React.useState(false);
 
     React.useEffect(() => {
         register({ name: "milkType" });
@@ -41,11 +39,22 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) 
             setValue('date', milk.date.format('DD-MM-YYYY'));
             setValue('customerId', milk.customerId);
 
+            if (milk.milkType === 'CM') {
+                setDisplaySNF(true);
+            }
             setMilkType(milk.milkType);
             setDate(milk.date);
             setCustomerId(milk.customerId);
         }
     }, [milk])
+
+    React.useEffect(() => {
+        firebase.customers().on('value', snapshot => {
+            onSetCustomers(snapshot.val())
+        });
+
+        return () => firebase.customers().off();
+    }, [firebase])
 
     const handleDate = (momentInstance) => {
         const formattedDate = momentInstance.format('DD-MM-YYYY');
@@ -55,7 +64,9 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) 
 
     const handleMilkType = option => {
         const value = option.target.value;
-        setValue('milkRate', MILK_RATES[value]);
+        if (value === 'CM') {
+            setDisplaySNF(true);
+        }
         setValue('milkType', value);
         setMilkType(value);
     }
@@ -82,12 +93,25 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) 
 
     const calculateMilkPrice = (milk) => {
         if (milk.milkType === 'BM') {
-            const cream = milk.milkQuantity * milk.milkFat;
-            return (cream * milk.milkRate / 10).toFixed(2);
+            return calculateBMPrice(milk);
         } else {
-            return 0;
+            return calculateCMPrice(milk);
         }
 
+    }
+
+    const calculateCMPrice = (milk) => {
+        console.log(milk);
+        const milkRate = Number(milk.milkRate);
+        const powderRate = (milkRate / 3) * Number(milk.milkSNF);
+        const gheeRate = (milkRate / 2) * Number(milk.milkFat);
+        const rate = (gheeRate + powderRate) / 10;
+        return (Number(milk.milkQuantity) * rate).toFixed(2);
+    }
+
+    const calculateBMPrice = (milk) => {
+        const cream = Number(milk.milkQuantity) * Number(milk.milkFat);
+        return (cream * Number(milk.milkRate) / 10).toFixed(2);
     }
 
     const onSubmit = (data) => {
@@ -96,7 +120,6 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) 
                 return onSetMilk(output[0], output[1], output[2]);
             })
             .then(() => {
-                setOpenSnackbar(true);
                 history.push(ROUTES.MILK_URLS.milk)
             })
             .catch(console.log);
@@ -146,8 +169,24 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) 
                     name="milkRate"
                     label="Milk Rate"
                     style={{ width: '100%' }}
-                    inputRef={register}
+                    inputRef={register({ required: true })}
+                    error={!!errors.milkRate}
+                    helperText={ErrorGenerator.getErrorMessage(errors, 'milkRate')}
                 />
+
+                {
+                    displaySNF ?
+                        <MyInput
+                            type="number"
+                            name="milkSNF"
+                            label="Milk SNF"
+                            style={{ width: '100%' }}
+                            inputRef={register({ required: true })}
+                            error={!!errors.milkSNF}
+                            helperText={ErrorGenerator.getErrorMessage(errors, 'milkSNF')}
+                        />
+                        : null
+                }
 
                 <MyInput
                     required
@@ -206,6 +245,7 @@ const mapStateToProps = state => ({
 })
 const mapDispatchToProps = dispatch => ({
     onSetMilk: (milk, date, uid) => dispatch({ type: ACTIONS.MILK_SET, milk, date, uid }),
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
 })
 
 export default compose(

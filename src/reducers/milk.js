@@ -2,7 +2,7 @@ import * as ACTIONS from '../actions';
 import { MyObject } from '../utilty';
 
 const INITIAL_STATE = {
-    milks: null,
+    milks: {},
 };
 
 const applySetMilks = (state, action) => ({

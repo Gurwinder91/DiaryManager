@@ -9,6 +9,7 @@ import { withFirebase } from '../Firebase';
 import Filter from './Filter';
 import { MyList } from '../../core';
 import * as ACTIONS from '../../actions';
+import * as CONSTANTS from '../../constants'; 
 import { withAuthorization } from '../Session';
 
 const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustomers }) => {
@@ -81,7 +82,7 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
         return arr.reduce(fn, 0);
     }
 
-    const getCustomerName = (customerId) => customers ? customers[customerId].customerName : '';
+    const getCustomerName = (customerId) => Object.keys(customers).length ? customers[customerId].customerName : '';
 
     const renderPayments = () => {
         let elements = [];
@@ -134,8 +135,12 @@ const mapDispatchToProps = dispatch => ({
     onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
 })
 
+const condition = authUser => {
+    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+}
+
 export default compose(
-    withAuthorization(authUser => !!authUser),
+    withAuthorization(condition),
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps)
 )(PaymentCalculator);

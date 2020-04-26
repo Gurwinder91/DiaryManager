@@ -56,7 +56,7 @@ const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
         }
     }
 
-    const getCustomerName = (customerId) => customers ? customers[customerId].customerName : '';
+    const getCustomerName = (customerId) => Object.keys(customers).length ? customers[customerId].customerName : '';
 
     return (
         <>

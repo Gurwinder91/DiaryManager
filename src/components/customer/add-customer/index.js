@@ -5,6 +5,7 @@ import moment from "moment";
 
 import CustomerForm from '../customer-form';
 import { withAuthorization } from '../../Session';
+import * as CONSTANTS from '../../../constants';
 
 const customer = {
     customerName: '',
@@ -25,5 +26,8 @@ const AddCustomer = (props) => {
     )
 }
 
+const condition = authUser => {
+    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+}
 
-export default withAuthorization(authUser => !!authUser)(AddCustomer);
+export default withAuthorization(condition)(AddCustomer);

@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 
 import { makeStyles, List, ListItem, ListItemText, Divider, IconButton, Typography } from '@material-ui/core';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import { connect } from 'react-redux';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -24,8 +25,28 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default (props) => {
+const NavList = (props) => {
     const classes = useStyles();
+
+    const getList = () => {
+        let list = [];
+        if (props.authUser)
+            list = props.list.filter(item => item.access.includes(props.authUser.role));
+            
+        return (
+            list.map((li) => (
+                <ListItem button
+                    key={li.id}
+                    onClick={props.toggleDrawer.bind(null, false)}
+                    component={NavLink}
+                    to={li.link} exact
+                    activeClassName={classes.active}>
+                    <ListItemText primary={li.text} />
+                </ListItem>
+            ))
+        )
+    }
+
     return (
         <div
             role="navList"
@@ -41,18 +62,16 @@ export default (props) => {
             </div>
             <Divider />
             <List>
-                {props.list.map((li) => (
-                    <ListItem button
-                        key={li.id}
-                        onClick={props.toggleDrawer.bind(null, false)}
-                        component={NavLink}
-                        to={li.link} exact
-                        activeClassName={classes.active}>
-                        <ListItemText primary={li.text} />
-                    </ListItem>
-                ))
+                {
+                    getList()
                 }
             </List>
         </div>
     )
 }
+
+const mapStateToProps = state => ({
+    authUser: state.sessionState.authUser,
+});
+
+export default connect(mapStateToProps)(NavList);

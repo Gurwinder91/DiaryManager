@@ -13,7 +13,7 @@ import * as ROUTES from '../../constants/routes';
 import { MyObject } from '../../utilty';
 import { withAuthorization } from '../Session';
 
-const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
+const AdminPage = ({ users, firebase, onSetUsers, onSetUser, authUser }) => {
     let history = useHistory();
     const [open, setOpen] = React.useState(false);
     const [dialogData, setDialogData] = React.useState({});
@@ -22,7 +22,21 @@ const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
     React.useEffect(() => {
         setLoading(true);
         firebase.users().once('value', snapshot => {
-            onSetUsers(snapshot.val());
+            const users = {}
+            snapshot.forEach(item => {
+                const user = item.val();
+                if (authUser.role == CONSTANTS.SUPER_ADMIN) {
+                    if (user.role !== CONSTANTS.SUPER_ADMIN) {
+                        users[item.key] = user;
+                    }
+                } else {
+                    if (user.role !== CONSTANTS.ADMIN && user.role !== CONSTANTS.SUPER_ADMIN) {
+                        users[item.key] = user;
+                    }
+                }
+            })
+
+            onSetUsers(users);
             setLoading(false);
         });
 
@@ -86,7 +100,8 @@ const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
 
 
 const mapStateToProps = state => ({
-    users: new MyObject(state.userState.users).toArray()
+    users: new MyObject(state.userState.users).toArray(),
+    authUser: state.sessionState.authUser,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -95,8 +110,9 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const condition = authUser => {
-    return !!authUser;
+    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
 }
+
 export default compose(
     withAuthorization(condition),
     withFirebase,

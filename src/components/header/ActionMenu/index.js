@@ -1,10 +1,14 @@
 import React from 'react';
-import { IconButton, Menu, MenuItem, Fade, ListItemIcon, makeStyles, Typography } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
+import { IconButton, Menu, Fade, Typography, MenuItem, makeStyles } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
+const useStyles = makeStyles((theme) => ({
+    vertIcon: {
+        color: theme.palette.common.white,
+    }
+}))
 export default (props) => {
+    const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
@@ -22,22 +26,14 @@ export default (props) => {
         <div>
             <IconButton edge="end" aria-label="action" style={{ marginRight: 5, padding: 0 }}
                 onClick={handleClick}>
-                { props.icon ? props.icon : <MoreVertIcon fontSize="large" /> }
+                <MoreVertIcon fontSize="large" className={classes.vertIcon}/>
             </IconButton>
             <MyActionMenu open={open} anchorEl={anchorEl} handleClose={handleClose} />
         </div>
     );
-
 }
 
-const useStyles = makeStyles({
-    root: {
-
-    }
-})
-
 function MyActionMenu(props) {
-    const classes = useStyles();
 
     return (
         <Menu
@@ -47,20 +43,9 @@ function MyActionMenu(props) {
             onClose={props.handleClose.bind(null, null)}
             TransitionComponent={Fade}
         >
-            <MenuItem onClick={props.handleClose.bind(null, 'edit')}>
-                <ListItemIcon className={classes.root}>
-                    <EditIcon />
-                </ListItemIcon>
+            <MenuItem onClick={props.handleClose.bind(null, 'signout')}>
                 <Typography variant="inherit">
-                    Edit
-                </Typography>
-            </MenuItem>
-            <MenuItem onClick={props.handleClose.bind(null, 'delete')}>
-                <ListItemIcon className={classes.root}>
-                    <DeleteIcon />
-                </ListItemIcon>
-                <Typography variant="inherit">
-                    Delete
+                    Signout
                 </Typography>
             </MenuItem>
         </Menu>

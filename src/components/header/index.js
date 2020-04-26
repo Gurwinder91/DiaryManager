@@ -59,7 +59,7 @@ const Header = ({ authUser, menuIconClick }) => {
     }
 
     const getName = () => {
-        return authUser.displayName ? authUser.displayName.split(' ').pop() : authUser.email;
+        return authUser.name ? authUser.name.split(' ').shift() : authUser.email;
     }
     return (
         <HideOnSlide>
@@ -69,7 +69,7 @@ const Header = ({ authUser, menuIconClick }) => {
 
                     {authUser ?
                         <>
-                            <Typography variant="subtitle2" style={{ marginRight: 5 }}>
+                            <Typography variant="subtitle1" style={{ marginRight: 5 }}>
                                 Welcome
                             </Typography>
                             <Typography variant="h6" className={classes.title}>

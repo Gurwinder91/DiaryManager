@@ -12,6 +12,7 @@ import EditCustomer from './edit-customer';
 import CustomersList from './customers-list';
 import { withAuthorization } from '../Session';
 import { withFirebase } from '../Firebase';
+import * as CONSTANTS from '../../constants';
 
 const CustomerBase = ({ customers, onSetCustomers, firebase }) => {
     const history = useHistory();
@@ -56,8 +57,12 @@ const mapDispatchToProps = dispatch => ({
     onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
 })
 
+const condition = authUser => {
+    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+}
+
 const Customer = compose(
-    withAuthorization(authUser => !!authUser),
+    withAuthorization(condition),
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps))
     (CustomerBase);

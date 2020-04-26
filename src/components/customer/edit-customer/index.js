@@ -9,6 +9,7 @@ import { withFirebase } from '../../Firebase';
 import CustomerForm from '../customer-form';
 import * as ACTIONS from '../../../actions';
 import { withAuthorization } from '../../Session';
+import * as CONSTANTS from '../../../constants';
 
 class EditCustomer extends Component {
 
@@ -55,8 +56,12 @@ const mapDispatchToProps = dispatch => ({
     onSetCustomer: (customer, uid) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer, uid })
 })
 
+const condition = authUser => {
+    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+}
+
 export default compose(
-    withAuthorization(authUser => !!authUser),
+    withAuthorization(condition),
     withRouter,
     withFirebase,
     connect(mapStateToProps, mapDispatchToProps)

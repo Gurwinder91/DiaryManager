@@ -31,20 +31,6 @@ app.post('/create', (req, res) => {
         });
 });
 
-app.post('/setClaims', (req, res) => {
-    admin.auth().setCustomUserClaims(req.body.uid, { role: req.body.role ? 'Admin': '' })
-        .then(() => {
-            const message = 'claim sets successfully for ' + req.body.uid ;
-            console.log(message);
-            return res.status(200).json({ message: message, uid: req.body.uid });
-        })
-        .catch(error => {
-            console.error(error);
-            return res.status(500).json({ error: error })
-        });
-})
-
-
 app.post('/disable', (req, res) => {
     admin.auth().getUserByEmail(req.body.email)
         .then(user => user.toJSON())

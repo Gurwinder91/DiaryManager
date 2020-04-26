@@ -9,26 +9,31 @@ import Main from "./components/Main";
 import { withAuthentication } from './components/Session';
 import { MySwipeableDrawer } from "./core";
 import * as ROUTES from "./constants/routes";
+import * as CONSTANTS from './constants';
 
 const navList = [
     {
         text: 'Customer',
         link: ROUTES.CUSTOMER_URLS.customer,
-        id: 2
+        id: 1,
+        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN]
     }, {
         text: 'Milk',
         link: ROUTES.MILK_URLS.milk,
-        id: 5
+        id: 2,
+        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN, CONSTANTS.MILK_ENTRY]
     },
     {
         text: 'Admin',
         link: ROUTES.ADMIN,
-        id: 7
+        id: 3,
+        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN]
     },
     {
         text: 'Payment Calculator',
         link: ROUTES.PAYMENT_CALCULATOR,
-        id: 8
+        id: 4,
+        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN]
     }
 ];
 

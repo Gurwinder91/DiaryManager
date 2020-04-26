@@ -35,7 +35,7 @@ const EditMilk = ({ firebase, match, onSetMilk, milk }) => {
 
 const mapStateToProps = (state, { match }) => {
     let milk = {};
-    if (state.milkState.milks) {
+    if (Object.keys(state.milkState.milks).length) {
         milk = state.milkState.milks[match.params.date][match.params.uid];
         milk = { ...milk, date: moment(match.params.date, 'DD-MM-YYYY') };
     }

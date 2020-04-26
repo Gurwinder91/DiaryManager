@@ -107,7 +107,7 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate, onSetCustomers, }) => 
 
 const mapStateToProps = (state, props) => {
     return {
-        getMilksByDate: (date) => state.milkState.milks ? new MyObject(state.milkState.milks[date]).toArray() : [],
+        getMilksByDate: (date) => Object.keys(state.milkState.milks).length ? new MyObject(state.milkState.milks[date]).toArray() : [],
     }
 }
 

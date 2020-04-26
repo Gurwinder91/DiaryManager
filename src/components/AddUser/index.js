@@ -3,11 +3,11 @@ import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { useForm } from 'react-hook-form';
-import { Typography, Switch, FormControlLabel } from '@material-ui/core';
+import { Typography, MenuItem } from '@material-ui/core';
 
 import * as ROUTES from '../../constants/routes';
 import { withFirebase } from '../Firebase';
-import { MyForm, MyInput } from '../../core';
+import { MyForm, MyInput, MySelect } from '../../core';
 import * as ACTIONS from '../../actions';
 import { ErrorGenerator } from '../../utilty';
 import * as CONSTANTS from '../../constants';
@@ -23,8 +23,19 @@ export default () => (
 );
 
 const AddUserFormBase = ({ firebase, history, onUserSignUp }) => {
-    const { register, handleSubmit, errors, getValues } = useForm();
+    const { register, handleSubmit, errors, getValues, setValue } = useForm();
+    const [ role, setRole ] = React.useState('MILK_ENTRY');
 
+    const handleRole = (event) => {
+        setValue('role', event.target.value);
+        setRole(event.target.value);
+    }
+
+    React.useEffect(() => {
+        register({name: 'role'});
+        setValue('role', 'MILK_ENTRY');
+    }, [register]);
+     
     const onSubmit = (data) => {
         const { confirmPassword, ...user } = data;
         let uid;
@@ -36,23 +47,13 @@ const AddUserFormBase = ({ firebase, history, onUserSignUp }) => {
             },
         })
             .then((user) => user.json())
-            .then((user) => setClaims(user.uid, data))
-            .then((output) => firebase.users().child(output.uid).set({ name: data.name, email: data.email, disabled: false, admin: data.role }))
-            .then(() => setClaims)
-            .then(() => onUserSignUp({ name: data.name, email: data.email, disabled: false, admin: data.role }, uid))
+            .then((user) => {
+                uid = user.uid;
+                return firebase.users().child(user.uid).set({ name: data.name, email: data.email, disabled: false, role: data.role })
+            })
+            .then(() => onUserSignUp({ name: data.name, email: data.email, disabled: false, role: data.role }, uid))
             .then(() => history.push(ROUTES.ADMIN))
             .catch(console.log);
-    }
-
-    const setClaims = (uid, data) => {
-        return fetch(`${CONSTANTS.BASE_URL}setClaims`, {
-            method: 'POST',
-            body: JSON.stringify({uid: uid, role: data.role}),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then((res) => res.json())
     }
 
     return (
@@ -118,14 +119,18 @@ const AddUserFormBase = ({ firebase, history, onUserSignUp }) => {
                 error={!!errors.confirmPassword}
                 helperText={ErrorGenerator.getErrorMessage(errors, 'confirmPassword')}
             />
-            <FormControlLabel
-                control={<Switch
-                    inputRef={register}
-                    name="role"
-                    defaultChecked={false}
-                />}
-                label="Wants to give Admin access"
-            />
+
+            <MySelect
+                labelName="Role"
+                labelId="role"
+                name="role"
+                value={role}
+                onChange={handleRole}
+            >
+                <MenuItem value="ADMIN">Admin</MenuItem>
+                <MenuItem value="MILK_ENTRY">Milk Entry</MenuItem>
+            </MySelect>
+
         </MyForm>
     );
 }
@@ -134,8 +139,12 @@ const mapDispatchToProps = dispatch => ({
     onUserSignUp: (user, uid) => dispatch({ type: ACTIONS.USER_SET, user, uid })
 });
 
+const condition = authUser => {
+    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+}
+
 const AddUserForm = compose(
-    withAuthorization(authUser => !!authUser),
+    withAuthorization(condition),
     withRouter,
     withFirebase,
     connect(null, mapDispatchToProps)

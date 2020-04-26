@@ -17,15 +17,29 @@ const withAuthentication = Component => {
             console.log(this.props.firebase.auth.currentUser);
             this.listener = this.props.firebase.auth.onAuthStateChanged(
                 authUser => {
-                    localStorage.setItem('authUser', JSON.stringify(authUser));
-                    this.props.onSetAuthUser(authUser);
+                    if (!authUser) {
+                        this.removeUserSession();
+                        return;
+                    }
+                    this.props.firebase.users().child(authUser.uid).once('value', (snapshot) => {
+                        const user = snapshot.val();
+                        localStorage.setItem('authUser', JSON.stringify(user));
+                        this.props.onSetAuthUser(user);
+                    }, () => {
+                        this.removeUserSession();
+                    });
                 },
                 () => {
-                    localStorage.removeItem('authUser');
-                    this.props.onSetAuthUser(null);
+                    this.removeUserSession();
                 }
             );
         }
+
+        removeUserSession = () => {
+            localStorage.removeItem('authUser');
+            this.props.onSetAuthUser(null);
+        }
+
         componentWillUnmount() {
             this.listener();
         }

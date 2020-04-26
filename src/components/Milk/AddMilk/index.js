@@ -3,7 +3,6 @@ import React from 'react';
 import moment from 'moment';
 
 import MilkForm from '../MilkForm';
-import MILK_RATES from '../milkRates';
 import { withAuthorization } from '../../Session';
 
 const AddMilk = () => {
@@ -13,7 +12,8 @@ const AddMilk = () => {
         customerId: '',
         milkType: 'BM',
         time: time === 'PM' ? 'Evening' : 'Morning',
-        milkRate: MILK_RATES.BM,
+        milkSNF: 8.0,
+        milkRate: 64,
         milkFat: '',
         milkQuantity: ''
     }
