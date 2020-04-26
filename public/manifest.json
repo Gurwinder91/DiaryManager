@@ -1,6 +1,7 @@
 {
   "short_name": "Milk Diary",
   "name": "Milk Diary Manager",
+  "description": "It helps to manage milk diary records and payment calculations",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#3F519B",
   "background_color": "#ffffff"
 }

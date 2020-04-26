@@ -1,10 +1,11 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
+import { Typography } from '@material-ui/core';
 
 const withAuthorization = condition => Component => {
     class WithAuthorization extends React.Component {
@@ -23,7 +24,7 @@ const withAuthorization = condition => Component => {
         // }
 
         render() {
-            return condition(this.props.authUser) ? <Component {...this.props} /> : null
+            return condition(this.props.authUser) ? <Component {...this.props} /> : <NoRightInfoPage />
         }
     }
 
@@ -39,3 +40,12 @@ const withAuthorization = condition => Component => {
     )(WithAuthorization);
 };
 export default withAuthorization;
+
+const NoRightInfoPage = () => {
+    return (
+        <Typography>
+            You do not have rights to access this page. Please <Link to={ROUTES.SIGN_IN}>Login</Link> as a Admin and
+            ask Administrator to give you a Admin Access to application.
+        </Typography>
+    )
+}

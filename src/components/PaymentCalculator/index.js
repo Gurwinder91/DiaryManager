@@ -7,17 +7,20 @@ import moment from 'moment';
 
 import { withFirebase } from '../Firebase';
 import Filter from './Filter';
-import { MyList } from '../../core';
+import { MyList, MySkeleton } from '../../core';
 import * as ACTIONS from '../../actions';
-import * as CONSTANTS from '../../constants'; 
+import * as CONSTANTS from '../../constants';
 import { withAuthorization } from '../Session';
 
 const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustomers }) => {
     const [payments, setPayments] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
+        setLoading(true);
         firebase.milks().limitToLast(30).once('value', snapshot => {
             onSetMilks(snapshot.val());
+            setLoading(false);
         })
         return () => firebase.milks().off();
     }, [firebase]);
@@ -51,13 +54,31 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
         return map;
     }
 
-    const condition = (filterObj, date) => {
-        //date = moment(date, 'DD-MM-YYYY').valueOf();
-        return date => date >= filterObj.startDate && date <= filterObj.endDate;
+    const compareLessThanEqualToDate = (dateA, dateB) => {
+        const [dayA, monthA, yearA] = dateA.split('-');
+        const [dayB, monthB, yearB] = dateB.split('-');
+        if (yearA < yearB)
+            return true;
+        if (monthA < monthB) {
+            return true;
+        }
+        return yearA <= yearB && monthA <= monthB && dayA <= dayB;
     }
+
+    const compareGreatorThanEqualToDate = (dateA, dateB) => {
+        const [dayA, monthA, yearA] = dateA.split('-');
+        const [dayB, monthB, yearB] = dateB.split('-');
+        if (yearA > yearB)
+            return true;
+        if (monthA > monthB) {
+            return true;
+        }
+        return yearA >= yearB && monthA >= monthB && dayA >= dayB;
+    }
+
     const arrangeData = (filterObj) => {
         let payments = []
-        Object.keys(milks).filter(date => date >= filterObj.startDate && date <= filterObj.endDate).forEach(date => {
+        Object.keys(milks).filter(date => compareLessThanEqualToDate(filterObj.startDate, date) && compareGreatorThanEqualToDate(filterObj.endDate, date)).forEach(date => {
             Object.keys(milks[date]).forEach(uid => {
                 let milk = {
                     ...milks[date][uid],
@@ -114,19 +135,22 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
             </Fragment>
             );
         }
-        return elements.length ? elements: null;
+        return elements.length ? elements : null;
     }
 
     return (
-        <>
-            <Typography variant="h4" component="h4" align="center">
-                Payment Calculator
+        loading ?
+            <MySkeleton />
+            :
+            <>
+                <Typography variant="h4" component="h4" align="center">
+                    Payment Calculator
             </Typography>
-            <Filter onCalculate={paymentCalculateHandler} />
-            <MyList>
-                {renderPayments()}
-            </MyList>
-        </>
+                <Filter onCalculate={paymentCalculateHandler} />
+                <MyList>
+                    {renderPayments()}
+                </MyList>
+            </>
     )
 }
 

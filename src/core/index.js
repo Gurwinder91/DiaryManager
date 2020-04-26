@@ -11,10 +11,11 @@ import MyInput from './MyInput';
 import HideOnSlide from './HideOnSlide';
 import MyForm from './MyForm';
 import MySnackbar from './MySnackbar';
+import MySkeleton from './MySkeleton';
 
 export {
     MyListSkeleton, ActionIcon, MySelect, MyDatePicker, MySwipeableDrawer,
-    MyList, AddCircle, MyConfirmDialog, MyInput, MyForm, HideOnSlide, MySnackbar
+    MyList, AddCircle, MyConfirmDialog, MyInput, MyForm, HideOnSlide, MySnackbar, MySkeleton
 };
 
 
