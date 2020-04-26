@@ -43,7 +43,7 @@ class EditCustomer extends Component {
 
 const mapStateToProps = (state, { match }) => {
     let customer = {};
-    if (state.customerState.customers) {
+    if (state.customerState.customers && Object.keys(state.customerState.customers).length) {
         customer = state.customerState.customers[match.params.uid];
     }
 

@@ -20,17 +20,21 @@ const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) =>
     });
     const [milkType, setMilkType] = React.useState('BM');
     const [registeredDate, setRegisteredDate] = React.useState(Date.now());
+    const [mode, setMode] = React.useState(false);
 
     React.useEffect(() => {
         register({ name: "milkType" });
         register({ name: "registeredDate" });
+        register({ name: "mode" });
     }, [register]);
 
     React.useEffect(() => {
-        if (Object.keys(customer).length) {
+        if (Object.keys(customer || {}).length) {
             setValue('milkType', customer.milkType);
             setValue('registeredDate', customer.registeredDate);
+            setValue('mode', customer.mode);
 
+            setMode(customer.mode);
             setMilkType(customer.milkType);
             setRegisteredDate(moment(customer.registeredDate, 'DD-MM-YYYY'));
         }
@@ -50,6 +54,11 @@ const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) =>
         setRegisteredDate(momentInstance);
     }
 
+    const modeHandler = (event) =>{
+        const value = event.target.checked;
+        setValue("mode", value);
+        setMode(value);
+    }
 
     const saveCustomer = (data) => {
         data.customerName = captializeFirstLetter(data.customerName);
@@ -158,9 +167,9 @@ const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) =>
 
             <FormControlLabel
                 control={<Switch
-                    inputRef={register}
                     name="mode"
-                    defaultChecked={customer.mode}
+                    checked={mode}
+                    onChange={modeHandler}
                 />}
                 label={watch('mode') ? "Sell milk from home" : "Sell milk in diary"}
             />

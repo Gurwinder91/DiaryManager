@@ -32,7 +32,9 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
 
     const paymentCalculateHandler = (filterObj) => {
         let payments = arrangeData(filterObj);
-        setPayments(groupByCustomer(payments));
+        const customerGps = groupByCustomer(payments);
+        console.log(customerGps);
+        setPayments(customerGps);
     }
 
     const groupByCustomer = (arr) => {
@@ -49,9 +51,13 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
         return map;
     }
 
+    const condition = (filterObj, date) => {
+        //date = moment(date, 'DD-MM-YYYY').valueOf();
+        return date => date >= filterObj.startDate && date <= filterObj.endDate;
+    }
     const arrangeData = (filterObj) => {
         let payments = []
-        Object.keys(milks).filter(key => key >= filterObj.startDate && key <= filterObj.endDate).forEach(date => {
+        Object.keys(milks).filter(date => date >= filterObj.startDate && date <= filterObj.endDate).forEach(date => {
             Object.keys(milks[date]).forEach(uid => {
                 let milk = {
                     ...milks[date][uid],
@@ -79,7 +85,8 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
     }
 
     const calculateSum = (arr, fn) => {
-        return arr.reduce(fn, 0);
+        const sum = arr.reduce(fn, 0);
+        return sum.toFixed(2);
     }
 
     const getCustomerName = (customerId) => Object.keys(customers).length ? customers[customerId].customerName : '';
@@ -97,7 +104,7 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
                                     Total Milk in litres: {calculateSum(entry[1], (prevResult, item) => prevResult + Number(item.milkQuantity))}
                                 </Typography>
                                 <Typography variant="body1" component="span" style={{ display: 'block' }}>
-                                    Toal Payment in Rs: {calculateSum(entry[1], (prevResult, item) => prevResult + Number(item.milkPrice))}
+                                    Total Payment in Rs: {calculateSum(entry[1], (prevResult, item) => prevResult + Number(item.milkPrice))}
                                 </Typography>
                             </>
                         }
@@ -107,7 +114,7 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
             </Fragment>
             );
         }
-        return elements;
+        return elements.length ? elements: null;
     }
 
     return (
