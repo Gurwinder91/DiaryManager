@@ -11,7 +11,7 @@ import { MyList } from '../../core';
 import * as ACTIONS from '../../actions';
 import { withAuthorization } from '../Session';
 
-const PaymentCalculator = ({ customers, firebase, onSetMilks, milks }) => {
+const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustomers }) => {
     const [payments, setPayments] = React.useState([]);
 
     React.useEffect(() => {
@@ -20,6 +20,14 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks }) => {
         })
         return () => firebase.milks().off();
     }, [firebase]);
+
+    React.useEffect(() => {
+        firebase.customers().on('value', snapshot => {
+            onSetCustomers(snapshot.val())
+        });
+
+        return () => firebase.customers().off();
+    }, [firebase])
 
     const paymentCalculateHandler = (filterObj) => {
         let payments = arrangeData(filterObj);
@@ -123,6 +131,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     onSetMilks: (milks) => dispatch({ type: ACTIONS.MILKS_SET, milks }),
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
 })
 
 export default compose(

@@ -11,7 +11,7 @@ const createArrayFromCount = (count) => {
 }
 
 
-export default function MyListSkeleton({ count }) {
+export default ({ count }) => {
     const classes = styles();
     return (
         createArrayFromCount(count).map((item) =>

@@ -3,27 +3,47 @@ import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 
-import { AddCircleIcon, MyList } from '../../core';
+import { AddCircle, MyList, MyListSkeleton } from '../../core';
 import { MyObject } from '../../utilty';
 import * as ROUTES from '../../constants/routes';
+import * as ACTIONS from '../../actions';
 import AddCustomer from './add-customer';
 import EditCustomer from './edit-customer';
 import CustomersList from './customers-list';
 import { withAuthorization } from '../Session';
+import { withFirebase } from '../Firebase';
 
-const CustomerBase = ({ customers }) => {
+const CustomerBase = ({ customers, onSetCustomers, firebase }) => {
     const history = useHistory();
+    const [loading, setloading] = React.useState(false);
+
+    React.useEffect(() => {
+        setloading(true);
+        firebase.customers().on('value', snapshot => {
+            onSetCustomers(snapshot.val());
+            setloading(false);
+        });
+
+        return () => firebase.customers().off();
+    }, [firebase])
 
     const navigateTo = (to) => {
-        history.push(`${ROUTES.CUSTOMER_URLS.customer}${to}`);
+        history.push(`${ROUTES.CUSTOMER_URLS.customer}${to}`, { childRoute: true });
     }
 
     return (
         <>
-            <MyList>
-                {customers.length ? <CustomersList customers={customers} /> : null}
-            </MyList>
-            <AddCircleIcon whenClicked={navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
+            {
+                loading ?
+                    <MyListSkeleton />
+                    :
+                    <>
+                        <MyList>
+                            {customers.length ? <CustomersList customers={customers} /> : null}
+                        </MyList>
+                        <AddCircle whenClicked={navigateTo.bind(this, ROUTES.CUSTOMER_URLS.add)} />
+                    </>
+            }
         </>
     )
 }
@@ -32,8 +52,13 @@ const mapStateToProps = state => ({
     customers: new MyObject(state.customerState.customers).toArray(),
 })
 
+const mapDispatchToProps = dispatch => ({
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
+})
+
 const Customer = compose(
     withAuthorization(authUser => !!authUser),
-    connect(mapStateToProps))
+    withFirebase,
+    connect(mapStateToProps, mapDispatchToProps))
     (CustomerBase);
 export { Customer, AddCustomer, EditCustomer };

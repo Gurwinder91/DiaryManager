@@ -17,13 +17,14 @@ import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 import MILK_RATES from '../milkRates';
 
-const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, onSetMilk, uid }) => {
+const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid }) => {
     const { register, handleSubmit, errors, setValue } = useForm({
         defaultValues: { ...milk }
     });
     const [milkType, setMilkType] = React.useState('BM');
     const [date, setDate] = React.useState(moment());
     const [customerId, setCustomerId] = React.useState('');
+    const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
 
     React.useEffect(() => {
@@ -94,7 +95,10 @@ const MilkForm = ({ milk, customers, firebase, history, onSetCustomers, mode, on
             .then((output) => {
                 return onSetMilk(output[0], output[1], output[2]);
             })
-            .then(() => history.push(ROUTES.MILK_URLS.milk))
+            .then(() => {
+                setOpenSnackbar(true);
+                history.push(ROUTES.MILK_URLS.milk)
+            })
             .catch(console.log);
     }
 

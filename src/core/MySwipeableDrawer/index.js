@@ -15,10 +15,11 @@ const setStyles = makeStyles((theme) => ({
     },
 }))
 
-export const MySwipeableDrawer = (props) => {
+export default (props) => {
     const classes = setStyles();
     return (
         <SwipeableDrawer
+            variant="persistent"
             className={classes.drawer}
             open={props.open}
             onClose={props.toggleDrawer.bind(null, false)}

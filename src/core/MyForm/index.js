@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export function MyForm(props) {
+export default (props) => {
     const classes = useStyles();
 
     return (

@@ -2,8 +2,6 @@
 import React from 'react';
 import { List, makeStyles, ListItem } from '@material-ui/core';
 
-
-
 const useStyles = makeStyles((theme) => ({
     root: {
         width: '100%',
@@ -17,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export function MyList(props) {
+export default (props) => {
     const classes = useStyles();
 
     return (

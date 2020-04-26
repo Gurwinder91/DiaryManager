@@ -2,8 +2,6 @@ import React from "react";
 
 import { Route } from 'react-router-dom';
 import { Container } from '@material-ui/core';
-import { compose } from 'recompose';
-import { connect } from 'react-redux';
 
 import './style.scss';
 import { Customer, AddCustomer, EditCustomer } from "../customer";
@@ -14,19 +12,9 @@ import * as ROUTES from '../../constants/routes';
 import AdminPage from "../Admin";
 import SignInPage from "../Signin";
 import PaymentCalculator from "../PaymentCalculator";
-import { withFirebase } from "../Firebase";
-import * as ACTIONS from '../../actions';
 import AddUser from "../AddUser";
 
-const Main = ({ firebase, onSetCustomers }) => {
-
-    React.useEffect(() => {
-        firebase.customers().on('value', snapshot => {
-            onSetCustomers(snapshot.val())
-        });
-
-        return () => firebase.customers().off();
-    })
+export default () => {
 
     return (
         <Container className="main">
@@ -49,12 +37,3 @@ const Main = ({ firebase, onSetCustomers }) => {
         </Container>
     );
 }
-
-const mapDispatchToProps = dispatch => ({
-    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
-})
-
-export default compose(
-    withFirebase,
-    connect(null, mapDispatchToProps)
-)(Main);

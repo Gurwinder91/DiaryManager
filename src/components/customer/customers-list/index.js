@@ -29,7 +29,7 @@ const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
                 setDialogValue(customer);
                 break;
             case 'edit':
-                history.push(`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}${customer.uid}`);
+                history.push(`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}${customer.uid}`, { childRoute: true });
                 break;
             default:
                 break;

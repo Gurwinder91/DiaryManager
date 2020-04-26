@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogActions, Button, Typography } from '@material-ui/core';
 
-export function MyConfirmDialog({ open, maxWidth, onDialogClose, data, message }) {
+export default ({ open, maxWidth, onDialogClose, data, message }) => {
     return (
         <Dialog
             disableBackdropClick

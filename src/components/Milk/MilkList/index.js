@@ -31,7 +31,7 @@ const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
                 setDialogValue(milk);
                 break;
             case 'edit':
-                history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}${date}/${milk.uid}`);
+                history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}${date}/${milk.uid}`, { childRoute: true });
                 break;
             default:
                 break;

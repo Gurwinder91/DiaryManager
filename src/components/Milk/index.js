@@ -9,7 +9,7 @@ import { withFirebase } from '../Firebase';
 import AddMilk from './AddMilk';
 import EditMilk from './EditMilk';
 import MilkList from './MilkList';
-import { MyList, AddCircleIcon, MyListSkeleton } from '../../core';
+import { MyList, AddCircle, MyListSkeleton } from '../../core';
 import * as ROUTES from '../../constants/routes';
 import MilkExpensionPanel from './MilkExpensionPanel';
 import MilkFilters from './MilkFilters';
@@ -20,7 +20,7 @@ import { withAuthorization } from '../Session';
 
 const todayDate = moment();
 
-const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
+const MilkBase = ({ firebase, onSetMilks, getMilksByDate, onSetCustomers, }) => {
     const history = useHistory();
     const [loading, setLoading] = React.useState(false);
     const [date, setDate] = React.useState(todayDate);
@@ -36,6 +36,14 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
 
         return () => firebase.milks().off();
     }, [date])
+
+    React.useEffect(() => {
+        firebase.customers().on('value', snapshot => {
+            onSetCustomers(snapshot.val())
+        });
+
+        return () => firebase.customers().off();
+    }, [firebase])
 
     const calculateMilkMath = (milksToCalc) => {
         const BMMilks = milksToCalc.filter(item => item.milkType === 'BM').map(item => Number(item.milkQuantity));
@@ -60,7 +68,7 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
     }
 
     const navigateTo = () => {
-        history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`);
+        history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`, { childRoute: true });
     }
 
     const renderContent = () => {
@@ -91,7 +99,7 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate }) => {
                 <MilkFilters date={date} time={time} setDate={setDate} setTime={setTime} />
 
                 {renderContent()}
-                <AddCircleIcon whenClicked={navigateTo} />
+                <AddCircle whenClicked={navigateTo} />
             </>
     )
 }
@@ -106,6 +114,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = dispatch => ({
     onSetMilks: (milks, date) => dispatch({ type: ACTIONS.MILKS_SET_BY_DATE, milks, date }),
+    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
 })
 
 const Milk = compose(

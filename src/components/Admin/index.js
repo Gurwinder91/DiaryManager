@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { Typography } from '@material-ui/core';
 
 import { withFirebase } from '../Firebase';
-import { MyConfirmDialog, AddCircleIcon, MyList, MyListSkeleton } from '../../core';
+import { MyConfirmDialog, AddCircle, MyList, MyListSkeleton } from '../../core';
 import UsersList from './UsersList';
 import * as ACTIONS from '../../actions';
 import * as CONSTANTS from '../../constants';
@@ -79,7 +79,7 @@ const AdminPage = ({ users, firebase, onSetUsers, onSetUser }) => {
                 onDialogClose={dialogClosedHandler}
                 message="Are you sure want to disable this user?"
                 open={open} />
-            <AddCircleIcon whenClicked={() => history.push(ROUTES.ADD_USER)} />
+            <AddCircle whenClicked={() => history.push(ROUTES.ADD_USER, { childRoute: true })} />
         </>
     );
 }
@@ -95,7 +95,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const condition = authUser => {
-   return !!authUser;
+    return !!authUser;
 }
 export default compose(
     withAuthorization(condition),
