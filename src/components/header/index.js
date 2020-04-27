@@ -45,9 +45,9 @@ const Header = ({ authUser, menuIconClick }) => {
                     onClick={() => history.goBack()}
                     className={classes.leftIconSection}
                     color="inherit" aria-label="back-icon" >
-                    <ArrowBackIcon className={classes.backIcon}/>
-                </IconButton > 
-                : 
+                    <ArrowBackIcon className={classes.backIcon} />
+                </IconButton >
+                :
                 < IconButton
                     edge="start"
                     onClick={menuIconClick.bind(null, true)}
@@ -58,30 +58,16 @@ const Header = ({ authUser, menuIconClick }) => {
         )
     }
 
-    const getName = () => {
-        return authUser.name ? authUser.name.split(' ').shift() : authUser.email;
-    }
     return (
         <HideOnSlide>
             <AppBar className={classes.root}>
                 <Toolbar>
                     {authUser ? getMenuIcon() : null}
-
-                    {authUser ?
-                        <>
-                            <Typography variant="subtitle1" style={{ marginRight: 5 }}>
-                                Welcome
-                            </Typography>
-                            <Typography variant="h6" className={classes.title}>
-                                {getName()}
-                            </Typography>
-                        </>
-                        : <Typography variant="h6" className={classes.title}>
-                            <Link component={NavLink} to="/" className={classes.link}>
-                                Milk Diary Manager
+                    <Typography variant="h6" className={classes.title}>
+                        <Link component={NavLink} to="/" className={classes.link}>
+                            Milk Diary Manager
                             </Link>
-                        </Typography>
-                    }
+                    </Typography>
                     <RightHeader />
                 </Toolbar>
             </AppBar>

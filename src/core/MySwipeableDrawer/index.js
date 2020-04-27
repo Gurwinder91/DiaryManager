@@ -19,9 +19,9 @@ export default (props) => {
     const classes = setStyles();
     return (
         <SwipeableDrawer
-            variant="persistent"
             className={classes.drawer}
             open={props.open}
+            onClick={props.toggleDrawer.bind(null, false)}
             onClose={props.toggleDrawer.bind(null, false)}
             onOpen={props.toggleDrawer.bind(null, true)}
             classes={{

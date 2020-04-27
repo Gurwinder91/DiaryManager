@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { makeStyles, List, ListItem, ListItemText, Divider, IconButton, Typography } from '@material-ui/core';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { connect } from 'react-redux';
-
 
 const useStyles = makeStyles((theme) => ({
     active: {
@@ -32,17 +32,19 @@ const NavList = (props) => {
         let list = [];
         if (props.authUser)
             list = props.list.filter(item => item.access.includes(props.authUser.role));
-            
+
         return (
             list.map((li) => (
-                <ListItem button
-                    key={li.id}
-                    onClick={props.toggleDrawer.bind(null, false)}
-                    component={NavLink}
-                    to={li.link} exact
-                    activeClassName={classes.active}>
-                    <ListItemText primary={li.text} />
-                </ListItem>
+                <Fragment key={li.id}>
+                    <ListItem button
+                        component={NavLink}
+                        to={li.link} exact
+                        activeClassName={classes.active}>
+                        <ListItemText primary={li.text} />
+                        <NavigateNextIcon />
+                    </ListItem>
+                    <Divider />
+                </Fragment>
             ))
         )
     }

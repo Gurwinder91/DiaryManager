@@ -13,6 +13,8 @@ import AdminPage from "../Admin";
 import SignInPage from "../Signin";
 import PaymentCalculator from "../PaymentCalculator";
 import AddUser from "../AddUser";
+import ForgetPassword from "../ForgetPassword";
+import UpdatePassword from '../UpdatePassword';
 
 export default () => {
 
@@ -26,6 +28,8 @@ export default () => {
             <Route path={ROUTES.ADD_USER} exact component={AddUser} />
             <Route path={ROUTES.SIGN_IN} exact component={SignInPage} />
             <Route path={ROUTES.ADMIN} exact component={AdminPage} />
+            <Route path={ROUTES.FORGET_PASSWORD} exact component={ForgetPassword} />
+            <Route path={ROUTES.UPDATE_PASSWORD} exact component={UpdatePassword} />
             <Route path={ROUTES.CUSTOMER_URLS.customer} exact component={Customer} />
             <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.add}`} exact component={AddCustomer} />
             <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}:uid`} exact component={EditCustomer} />

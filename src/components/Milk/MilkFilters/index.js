@@ -24,8 +24,8 @@ export default ({date, time, setTime, setDate}) => {
                 onChange={(event) => setTime(event.target.value)}
             >
                 <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Evening">Evening</MenuItem>
                 <MenuItem value="Morning">Morning</MenuItem>
+                <MenuItem value="Evening">Evening</MenuItem>
             </MySelect>
         </div>
     )

@@ -6,6 +6,8 @@ export const ACCOUNT = '/account';
 export const ADMIN = '/admin';
 export const PASSWORD_FORGET = '/pw-forget';
 export const PAYMENT_CALCULATOR = '/payment-calculator';
+export const FORGET_PASSWORD = '/forget-password';
+export const UPDATE_PASSWORD = '/update-password';
 export const CUSTOMER_URLS = {
     customer: '/customer/',
     add: 'add/',

@@ -1,7 +1,7 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { compose } from 'recompose';
-import { Typography } from '@material-ui/core';
+import { Typography, Button } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
 
 import { withFirebase } from '../Firebase';
@@ -18,15 +18,22 @@ const SignInPage = () => (
   </div>
 );
 
-const SignInFormBase = ({ firebase, history }) => {
+const SignInFormBase = ({ firebase }) => {
+  let history = useHistory();
 
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors, getValues } = useForm();
+
+  const forgetHandler = () => {
+    history.push(ROUTES.FORGET_PASSWORD, { email: getValues('email') })
+  }
 
   const onSubmit = (data) => {
     firebase
       .doSignInWithEmailAndPassword(data.email, data.password)
       .then(() => {
-        history.push(ROUTES.MILK_URLS.milk);
+        setTimeout(() => {
+          history.push(ROUTES.MILK_URLS.milk);
+        }, 500);
       })
       .catch(console.log);
   };
@@ -65,13 +72,24 @@ const SignInFormBase = ({ firebase, history }) => {
         error={!!errors.password}
         helperText={ErrorGenerator.getErrorMessage(errors, 'password')}
       />
+
+      <div style={{ width: '100%', marginTop: 10 }}>
+        <ForgetPassword forgetPasswordClick={forgetHandler} />
+      </div>
+
     </MyForm>
   );
 
 }
 const SignInForm = compose(
-  withRouter,
   withFirebase,
 )(SignInFormBase);
 export default SignInPage;
 export { SignInForm };
+
+const ForgetPassword = ({ forgetPasswordClick }) => {
+
+  return (
+    <Button color="secondary" onClick={forgetPasswordClick}>Forget Password</Button>
+  )
+}

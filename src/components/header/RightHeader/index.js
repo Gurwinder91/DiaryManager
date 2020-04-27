@@ -14,6 +14,18 @@ const RightHeader = ({ authUser, firebase }) => {
     const history = useHistory();
     const location = useLocation();
 
+    const onMenuClosed = (value) => {
+        switch (value) {
+            case 'updatePassword':
+                history.push(ROUTES.UPDATE_PASSWORD);
+                break;
+            case 'signout':
+                signOut();
+                break;
+            default:
+                break;
+        }
+    }
     const signOut = () => {
         firebase.doSignOut();
         history.push(ROUTES.SIGN_IN);
@@ -21,7 +33,7 @@ const RightHeader = ({ authUser, firebase }) => {
 
     const whenUserLoggedIn = () => {
         return (
-            <ActionMenu whenMenuClosed={signOut}/>
+            <ActionMenu whenMenuClosed={onMenuClosed} />
         )
     }
 

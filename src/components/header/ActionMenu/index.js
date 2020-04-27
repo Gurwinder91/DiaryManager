@@ -1,13 +1,15 @@
 import React from 'react';
-import { IconButton, Menu, Fade, Typography, MenuItem, makeStyles } from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { Menu, Fade, Typography, MenuItem, makeStyles, Avatar } from '@material-ui/core';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
-    vertIcon: {
-        color: theme.palette.common.white,
+    avatar: {
+        backgroundColor: theme.palette.error.dark,
+        color: theme.palette.error.contrastText,
+        cursor: 'pointer',
     }
 }))
-export default (props) => {
+const ActionMenu = (props) => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
@@ -22,12 +24,13 @@ export default (props) => {
             props.whenMenuClosed(actionType);
     };
 
+    const getName = () => {
+        return props.authUser.name.slice(0, 1).toUpperCase();
+    }
+
     return (
         <div>
-            <IconButton edge="end" aria-label="action" style={{ marginRight: 5, padding: 0 }}
-                onClick={handleClick}>
-                <MoreVertIcon fontSize="large" className={classes.vertIcon}/>
-            </IconButton>
+            <Avatar className={classes.avatar} onClick={handleClick}>{getName()}</Avatar>
             <MyActionMenu open={open} anchorEl={anchorEl} handleClose={handleClose} />
         </div>
     );
@@ -43,11 +46,22 @@ function MyActionMenu(props) {
             onClose={props.handleClose.bind(null, null)}
             TransitionComponent={Fade}
         >
+            <MenuItem onClick={props.handleClose.bind(null, 'updatePassword')}>
+                <Typography variant="inherit">
+                    Update Password
+                </Typography>
+            </MenuItem>
             <MenuItem onClick={props.handleClose.bind(null, 'signout')}>
                 <Typography variant="inherit">
-                    Signout
+                    Logout
                 </Typography>
             </MenuItem>
         </Menu>
     )
 }
+
+const mapStateToProps = state => ({
+    authUser: state.sessionState.authUser,
+});
+
+export default connect(mapStateToProps)(ActionMenu);
