@@ -9,3 +9,6 @@ export const MILK_REMOVE = 'MILK_REMOVE';
 export const CUSTOMER_SET = 'CUSTOMER_SET';
 export const CUSTOMERS_SET = 'CUSTOMERS_SET';
 export const CUSTOMER_REMOVE = 'CUSTOMER_REMOVE'; 
+
+export const SHOW_SNACKBAR = 'SHOW_SNACKBAR';
+export const HIDE_SNACKBAR = 'HIDE_SNACKBAR';

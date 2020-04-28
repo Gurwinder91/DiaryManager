@@ -1,6 +1,7 @@
 
 import React from 'react';
 import moment from 'moment';
+import { Typography } from '@material-ui/core';
 
 import MilkForm from '../MilkForm';
 import { withAuthorization } from '../../Session';
@@ -19,7 +20,12 @@ const AddMilk = () => {
     }
 
     return (
-        <MilkForm milk={milk} mode='add' />
+        <>
+            <Typography variant="h4" align="center">
+                Add Milk
+            </Typography>
+            <MilkForm milk={milk} mode='add' />
+        </>
     )
 
 }

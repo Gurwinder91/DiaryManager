@@ -12,7 +12,7 @@ import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 import { ErrorGenerator } from '../../../utilty';
 
-const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) => {
+const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid, showSnackbar }) => {
     const { register, handleSubmit, errors, watch, setValue } = useForm({
         defaultValues: {
             ...customer
@@ -54,7 +54,7 @@ const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) =>
         setRegisteredDate(momentInstance);
     }
 
-    const modeHandler = (event) =>{
+    const modeHandler = (event) => {
         const value = event.target.checked;
         setValue("mode", value);
         setMode(value);
@@ -86,99 +86,103 @@ const CustomerForm = ({ customer, firebase, history, onCustomerChange, uid }) =>
             .then((key) => {
                 return onCustomerChange(data, key);
             })
-            .then(() => history.push(ROUTES.CUSTOMER_URLS.customer))
-            .catch(console.log);
+            .then(() => {
+                showSnackbar(`Customer ${uid ? 'updated' : 'added'} successfully`, 'success');
+                history.push(ROUTES.CUSTOMER_URLS.customer);
+            })
+            .catch(err => showSnackbar(err.message || err.errors.message, 'error'));
     }
 
     return (
-        <MyForm onSubmit={handleSubmit(onSubmit)}>
-            <MyInput
-                required
-                name="customerName"
-                label="Customer Name"
-                style={{ width: '100%' }}
-                inputRef={
-                    register({
-                        required: true,
-                        pattern: {
-                            value: /^[A-Za-z ']*$/,
-                            message: 'This field is not valid'
-                        }
-                    })
-                }
-                error={!!errors.customerName}
-                helperText={ErrorGenerator.getErrorMessage(errors, 'customerName')}
-            />
+            <MyForm onSubmit={handleSubmit(onSubmit)}>
+                <MyInput
+                    required
+                    name="customerName"
+                    label="Customer Name"
+                    style={{ width: '100%' }}
+                    inputRef={
+                        register({
+                            required: true,
+                            pattern: {
+                                value: /^[A-Za-z ']*$/,
+                                message: 'This field is not valid'
+                            }
+                        })
+                    }
+                    error={!!errors.customerName}
+                    helperText={ErrorGenerator.getErrorMessage(errors, 'customerName')}
+                />
 
-            <MyInput
-                type="number"
-                required
-                name="phoneNumber"
-                label="Phone Number"
-                style={{ width: '100%' }}
-                inputRef={
-                    register({
-                        required: true,
-                        pattern: {
-                            value: /^\d*$/,
-                            message: 'Only numbers are allowed'
-                        },
-                        minLength: {
-                            value: 10,
-                            message: 'Not less then 10 digits'
-                        },
-                        maxLength: {
-                            value: 10,
-                            message: 'Not more then 10 digits'
-                        },
-                    })
-                }
-                error={!!errors.phoneNumber}
-                helperText={ErrorGenerator.getErrorMessage(errors, 'phoneNumber')}
-            />
+                <MyInput
+                    type="number"
+                    required
+                    name="phoneNumber"
+                    label="Phone Number"
+                    style={{ width: '100%' }}
+                    inputRef={
+                        register({
+                            required: true,
+                            pattern: {
+                                value: /^\d*$/,
+                                message: 'Only numbers are allowed'
+                            },
+                            minLength: {
+                                value: 10,
+                                message: 'Not less then 10 digits'
+                            },
+                            maxLength: {
+                                value: 10,
+                                message: 'Not more then 10 digits'
+                            },
+                        })
+                    }
+                    error={!!errors.phoneNumber}
+                    helperText={ErrorGenerator.getErrorMessage(errors, 'phoneNumber')}
+                />
 
-            <MyInput
-                required
-                name="address"
-                label="Address"
-                style={{ width: '100%' }}
-                inputRef={register({ required: true })}
-                error={!!errors.address}
-                helperText={ErrorGenerator.getErrorMessage(errors, 'address')}
-            />
+                <MyInput
+                    required
+                    name="address"
+                    label="Address"
+                    style={{ width: '100%' }}
+                    inputRef={register({ required: true })}
+                    error={!!errors.address}
+                    helperText={ErrorGenerator.getErrorMessage(errors, 'address')}
+                />
 
-            <MySelect
-                labelName="Milk Type"
-                labelId="milk-type"
-                name="milkType"
-                value={milkType}
-                onChange={handleMilkType}
-            >
-                <MenuItem value="BM">BM</MenuItem>
-                <MenuItem value="CM">CM</MenuItem>
-            </MySelect>
+                <MySelect
+                    labelName="Milk Type"
+                    labelId="milk-type"
+                    name="milkType"
+                    value={milkType}
+                    onChange={handleMilkType}
+                >
+                    <MenuItem value="BM">BM</MenuItem>
+                    <MenuItem value="CM">CM</MenuItem>
+                </MySelect>
 
-            <MyDatePicker
-                label="Date of Registration"
-                name="registeredDate"
-                value={registeredDate}
-                onChange={handleDate}
-            />
+                <MyDatePicker
+                    label="Date of Registration"
+                    name="registeredDate"
+                    value={registeredDate}
+                    onChange={handleDate}
+                />
 
-            <FormControlLabel
-                control={<Switch
-                    name="mode"
-                    checked={mode}
-                    onChange={modeHandler}
-                />}
-                label={watch('mode') ? "Sell milk from home" : "Sell milk in diary"}
-            />
-        </MyForm>
+                <FormControlLabel
+                    control={<Switch
+                        name="mode"
+                        checked={mode}
+                        onChange={modeHandler}
+                    />}
+                    label={watch('mode') ? "Sell milk from home" : "Sell milk in diary"}
+                />
+            </MyForm>
     );
 }
 
 const mapDispatchToProps = dispatch => ({
-    onCustomerChange: (customer, uid) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer, uid })
+    onCustomerChange: (customer, uid) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer, uid }),
+    showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity })
 });
 
 export default compose(

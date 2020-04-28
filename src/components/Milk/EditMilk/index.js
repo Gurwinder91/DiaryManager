@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
+import { Typography } from '@material-ui/core';
 import { compose } from 'recompose';
 import moment from 'moment';
 
@@ -28,7 +29,12 @@ const EditMilk = ({ firebase, match, onSetMilk, milk }) => {
     }, [match.params.uid, match.params.date])
 
     return (
-        <MilkForm milk={milk} uid={match.params.uid} mode='edit' />
+        <>
+            <Typography variant="h4" align="center">
+                Edit Milk
+            </Typography>
+            <MilkForm milk={milk} uid={match.params.uid} mode='edit' />
+        </>
     )
 
 }

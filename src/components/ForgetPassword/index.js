@@ -2,17 +2,17 @@ import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { Typography } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
+import { connect } from 'react-redux';
+import { compose } from 'recompose';
 
-import { MyForm, MyInput, MySnackbar } from '../../core';
+import { MyForm, MyInput } from '../../core';
 import { withFirebase } from '../Firebase';
 import { ErrorGenerator } from '../../utilty'
 import * as ROUTES from '../../constants/routes';
+import * as ACTIONS from '../../actions';
 
-const ForgetPassword = ({ firebase }) => {
+const ForgetPassword = ({ firebase, showSnackbar }) => {
     const { register, handleSubmit, errors, setValue, reset } = useForm();
-    const [open, setOpen] = React.useState(false);
-    const [message, setMessage] = React.useState('');
-    const [severity, setSeverity] = React.useState('success');
 
     const location = useLocation();
     const history = useHistory();
@@ -23,27 +23,20 @@ const ForgetPassword = ({ firebase }) => {
         firebase.doPasswordReset(data.email)
             .then(() => {
                 reset();
-                setSnackBarProps(true, 'Email is sent. Please check your email', 'success');
+                showSnackbar('Email is sent. Please check your email', 'success');
                 history.push(ROUTES.SIGN_IN);
             }).catch((err) => {
-                setSnackBarProps(true, err.message || err.errors.message, 'error');
+                showSnackbar(err.message || err.errors.message, 'error');
             })
-    }
-
-    const setSnackBarProps = (open, message, severity = 'success') => {
-        setSeverity(severity);
-        setMessage(message);
-        setOpen(open);
-    }
-
-    const handleClose = () => {
-        setOpen(false);
     }
 
     return (
         <>
             <Typography variant="h4" align="center">
                 Reset password
+            </Typography>
+            <Typography variant="body1" style={{ margin: '25px 0' }}>
+                After clicking submit button, an email will be sent to your registered email for password reset.
             </Typography>
             <MyForm onSubmit={handleSubmit(onSubmit)} >
                 <MyInput
@@ -62,9 +55,16 @@ const ForgetPassword = ({ firebase }) => {
                     helperText={ErrorGenerator.getErrorMessage(errors, 'email')}
                 />
             </MyForm>
-            <MySnackbar open={open} severity={severity} message={message} handleClose={handleClose} />
         </>
     );
 };
 
-export default withFirebase(ForgetPassword);
+const mapDispatchToProps = dispatch => ({
+    showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity })
+})
+
+
+export default compose(
+    withFirebase,
+    connect(null, mapDispatchToProps),
+)(ForgetPassword);

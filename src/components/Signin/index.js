@@ -1,6 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 import { Typography, Button } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
 
@@ -8,6 +9,7 @@ import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 import { MyForm, MyInput } from '../../core';
 import { ErrorGenerator } from '../../utilty';
+import * as ACTIONS from '../../actions';
 
 const SignInPage = () => (
   <div>
@@ -18,7 +20,7 @@ const SignInPage = () => (
   </div>
 );
 
-const SignInFormBase = ({ firebase }) => {
+const SignInFormBase = ({ firebase, showSnackbar }) => {
   let history = useHistory();
 
   const { register, handleSubmit, errors, getValues } = useForm();
@@ -32,10 +34,13 @@ const SignInFormBase = ({ firebase }) => {
       .doSignInWithEmailAndPassword(data.email, data.password)
       .then(() => {
         setTimeout(() => {
+          showSnackbar('Login Successfully', 'success');
           history.push(ROUTES.MILK_URLS.milk);
         }, 500);
       })
-      .catch(console.log);
+      .catch((err) => {
+        showSnackbar(err.message || err.errors.message, 'error');
+      });
   };
 
   return (
@@ -81,8 +86,15 @@ const SignInFormBase = ({ firebase }) => {
   );
 
 }
+
+const mapDispatchToProps = dispatch => ({
+  showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity })
+})
+
+
 const SignInForm = compose(
   withFirebase,
+  connect(null, mapDispatchToProps),
 )(SignInFormBase);
 export default SignInPage;
 export { SignInForm };

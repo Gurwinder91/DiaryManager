@@ -7,7 +7,7 @@ import "./App.scss";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import { withAuthentication } from './components/Session';
-import { MySwipeableDrawer } from "./core";
+import { MySwipeableDrawer, MySnackbar } from "./core";
 import * as ROUTES from "./constants/routes";
 import * as CONSTANTS from './constants';
 
@@ -58,6 +58,7 @@ const App = () => {
             />
             <Toolbar />
             <Main />
+            <MySnackbar/>
         </Router>
     )
 }

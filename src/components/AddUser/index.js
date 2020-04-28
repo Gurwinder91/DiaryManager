@@ -18,11 +18,15 @@ export default () => (
         <Typography variant="h4" align="center">
             Add User
         </Typography>
+        <Typography variant="body1" style={{marginTop: 20}}>
+            Email you enter while creating user should be valid. It will help to reset your
+            password in case you forget it. 
+        </Typography>
         <AddUserForm />
     </>
 );
 
-const AddUserFormBase = ({ firebase, history, onUserSignUp }) => {
+const AddUserFormBase = ({ firebase, history, onUserSignUp, showSnackbar }) => {
     const { register, handleSubmit, errors, getValues, setValue } = useForm();
     const [ role, setRole ] = React.useState('MILK_ENTRY');
 
@@ -52,8 +56,11 @@ const AddUserFormBase = ({ firebase, history, onUserSignUp }) => {
                 return firebase.users().child(user.uid).set({ name: data.name, email: data.email, disabled: false, role: data.role })
             })
             .then(() => onUserSignUp({ name: data.name, email: data.email, disabled: false, role: data.role }, uid))
-            .then(() => history.push(ROUTES.ADMIN))
-            .catch(console.log);
+            .then(() => {
+                showSnackbar('User added successfully', 'success');
+                history.push(ROUTES.ADMIN);
+            })
+            .catch((err) => showSnackbar(err.message || err.errors.message, 'error'));
     }
 
     return (
@@ -136,7 +143,8 @@ const AddUserFormBase = ({ firebase, history, onUserSignUp }) => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    onUserSignUp: (user, uid) => dispatch({ type: ACTIONS.USER_SET, user, uid })
+    onUserSignUp: (user, uid) => dispatch({ type: ACTIONS.USER_SET, user, uid }),
+    showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity }),
 });
 
 const condition = authUser => {

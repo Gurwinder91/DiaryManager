@@ -3,37 +3,26 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Typography } from '@material-ui/core';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 
-import { MyForm, MyInput, MySnackbar } from '../../core';
+import { MyForm, MyInput } from '../../core';
 import { withFirebase } from '../Firebase';
 import { ErrorGenerator } from '../../utilty';
 import { withAuthorization } from '../Session';
+import * as ACTIONS from '../../actions';
 
-const UpdatePassword = ({ firebase }) => {
+const UpdatePassword = ({ firebase, showSnackbar }) => {
     const { register, handleSubmit, errors, getValues, reset } = useForm();
-    const [open, setOpen] = React.useState(false);
-    const [message, setMessage] = React.useState('');
-    const [severity, setSeverity] = React.useState('success');
 
     const onSubmit = (data) => {
         const { password } = data;
         firebase.doPasswordUpdate(password)
             .then((res) => {
                 reset();
-                setSnackBarProps(true, 'New password updated successfully', 'success');
+                showSnackbar('New password updated successfully', 'success');
             }).catch((err)=> {
-                setSnackBarProps(true, err.message || err.errors.message, 'error');
+                showSnackbar(err.message || err.errors.message, 'error');
             })
-    }
-
-    const setSnackBarProps = (open, message, severity = 'success') => {
-        setSeverity(severity);
-        setMessage(message);
-        setOpen(open);
-    }
-
-    const handleClose = (val) => {
-        setOpen(false);
     }
 
     return (
@@ -77,13 +66,17 @@ const UpdatePassword = ({ firebase }) => {
                     helperText={ErrorGenerator.getErrorMessage(errors, 'confirmPassword')}
                 />
             </MyForm>
-            <MySnackbar open={open} severity={severity} message={message} handleClose={handleClose}/>
         </>
     );
 }
 
+const mapDispatchToProps = dispatch => ({
+    showSnackbar: (message, severity) => dispatch({type: ACTIONS.SHOW_SNACKBAR, message, severity})
+})
+
 export default compose(
     withAuthorization(authUser => !!authUser),
-    withFirebase
+    withFirebase,
+    connect(null, mapDispatchToProps)
 )
     (UpdatePassword);

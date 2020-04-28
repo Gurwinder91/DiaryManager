@@ -2,7 +2,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import {
-    Typography, MenuItem, FormControlLabel,
+    MenuItem, FormControlLabel,
     FormControl, FormLabel, RadioGroup, Radio
 } from '@material-ui/core';
 import { compose } from 'recompose';
@@ -16,7 +16,7 @@ import { withFirebase } from '../../Firebase';
 import * as ROUTES from '../../../constants/routes';
 import * as ACTIONS from '../../../actions';
 
-const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid, onSetCustomers }) => {
+const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid, onSetCustomers, showSnackbar }) => {
     const { register, handleSubmit, errors, setValue } = useForm({
         defaultValues: { ...milk }
     });
@@ -120,16 +120,13 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid, on
                 return onSetMilk(output[0], output[1], output[2]);
             })
             .then(() => {
+                showSnackbar(`Milk ${mode === 'edit' ? 'updated': 'added' } successfully`, 'success');
                 history.push(ROUTES.MILK_URLS.milk)
             })
-            .catch(console.log);
+            .catch(err => showSnackbar(err.message || err.errors.message, 'error'));
     }
 
     return (
-        <>
-            <Typography variant="h4" align="center">
-                {mode === 'edit' ? 'Edit Milk' : 'Add Milk'}
-            </Typography>
             <MyForm onSubmit={handleSubmit(onSubmit)}>
                 <MySelect
                     required
@@ -236,7 +233,6 @@ const MilkForm = ({ milk, customers, firebase, history, mode, onSetMilk, uid, on
                     </RadioGroup>
                 </FormControl>
             </MyForm>
-        </>
     );
 }
 
@@ -246,6 +242,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     onSetMilk: (milk, date, uid) => dispatch({ type: ACTIONS.MILK_SET, milk, date, uid }),
     onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
+    showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity }),
 })
 
 export default compose(

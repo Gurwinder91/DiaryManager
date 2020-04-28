@@ -3,11 +3,13 @@ import sessionReducer from './session';
 import userReducer from './user';
 import milkReducer from './milk';
 import customerReducer from './customer';
+import snackBarReducer from './snackbar';
 
 const rootReducer = combineReducers({
     sessionState: sessionReducer,
     userState: userReducer,
     customerState: customerReducer,
-    milkState: milkReducer
+    milkState: milkReducer,
+    snackBarState: snackBarReducer,
 });
 export default rootReducer;
