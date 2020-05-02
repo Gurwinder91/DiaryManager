@@ -4,7 +4,7 @@ import { Snackbar } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import { connect } from 'react-redux';
 
-import * as ACTIONS from '../../actions';  
+import { hideSnackbar } from '../../actions/snackbar';
 
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -21,11 +21,11 @@ const MySnackbar = ({ snackbar, hideSnackbar }) => {
 }
 
 const mapStateToProps = state => ({
-    snackbar: state.snackBarState.snackBar,
+    snackbar: state.snackBar.snackBar,
 })
 
 const mapDispatchToProps = dispatch => ({
-    hideSnackbar: () => dispatch({type: ACTIONS.HIDE_SNACKBAR}),
+    hideSnackbar: () => dispatch(hideSnackbar()),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MySnackbar);

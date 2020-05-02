@@ -2,24 +2,23 @@ import React, { Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
+import moment from "moment";
 import { Divider, ListItem, ListItemAvatar, Avatar, ListItemText, Typography } from '@material-ui/core';
 
-import {withFirebase} from '../../Firebase';
 import useStyles from './style';
 import { ActionIcon, MyConfirmDialog } from '../../../core';
 import * as ROUTES from '../../../constants/routes';
-import * as ACTIONS from '../../../actions';
+import { removeCustomer } from '../../../actions/customer';
 
-const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
+const CustomerList = ({ customers, onRemoveCustomer }) => {
     const classes = useStyles();
     const history = useHistory();
 
     const [open, setOpen] = React.useState(false);
     const [dialogValue, setDialogValue] = React.useState('');
 
-    const removeCustomer = (uid) => {
-        firebase.customers().child(uid).remove()
-            .then(() => onRemoveCustomer(uid))
+    const removeCustomer = (id) => {
+        onRemoveCustomer(id);
     }
 
     const onMenuclosed = (customer, actionType) => {
@@ -29,7 +28,7 @@ const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
                 setDialogValue(customer);
                 break;
             case 'edit':
-                history.push(`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}${customer.uid}`, { childRoute: true });
+                history.push(`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}${customer.id}`, { childRoute: true });
                 break;
             default:
                 break;
@@ -39,14 +38,14 @@ const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
     const dialogClosedHandler = (output) => {
         setOpen(false);
         if (output) {
-            removeCustomer(output.uid);
+            removeCustomer(output.id);
         }
     }
 
     return (
         <>
             {customers.map(customer =>
-                <Fragment key={customer.uid}>
+                <Fragment key={customer.id}>
                     <ListItem>
                         <ListItemAvatar>
                             <Avatar alt="No Image" src={customer.image}
@@ -63,7 +62,7 @@ const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
                                     {`${customer.customerName}`}
                                 </Typography>
                             }
-                            secondary={`+91 ${customer.phoneNumber}, ${customer.registeredDate}`}
+                            secondary={`+91 ${customer.phoneNumber}, ${moment(customer.registeredDate).format('DD-MM-YYYY')}`}
                         />
                         <ActionIcon whenMenuClosed={onMenuclosed.bind(this, customer)} />
                     </ListItem>
@@ -82,11 +81,10 @@ const CustomerList = ({ customers, firebase, onRemoveCustomer }) => {
 
 
 const mapDispatchToProps = dispatch => ({
-    onRemoveCustomer: (uid) => dispatch({ type: ACTIONS.CUSTOMER_REMOVE, uid }),
+    onRemoveCustomer: (id) => dispatch(removeCustomer(id)),
 })
 
 export default compose(
-    withFirebase,
     connect(
         null,
         mapDispatchToProps)

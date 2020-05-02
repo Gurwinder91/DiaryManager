@@ -1,31 +1,30 @@
 import React from 'react';
-import { withRouter, NavLink } from 'react-router-dom';
+import {  NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
+import { isLoaded } from 'react-redux-firebase';
 import { Typography, makeStyles, Container, Link } from '@material-ui/core';
 
-import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 
-const withAuthorization = condition => Component => {
+export default condition => Component => {
     class WithAuthorization extends React.Component {
         render() {
-            return condition(this.props.authUser) ? <Component {...this.props} /> : <NoRightsInfoPage />
+            if(!isLoaded(this.props.profile)){
+                return null;
+            }
+            return condition(this.props.profile) ? <Component {...this.props} /> : <NoRightsInfoPage />
         }
     }
 
     const mapStateToProps = state => ({
-        authUser: state.sessionState.authUser,
+        profile: state.firebase.profile,
     });
 
     return compose(
-        withRouter,
-        withFirebase,
         connect(mapStateToProps),
     )(WithAuthorization);
 };
-export default withAuthorization;
-
 
 const useStyles = makeStyles((theme) => ({
     root: {

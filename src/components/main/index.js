@@ -32,10 +32,10 @@ export default () => {
             <Route path={ROUTES.UPDATE_PASSWORD} exact component={UpdatePassword} />
             <Route path={ROUTES.CUSTOMER_URLS.customer} exact component={Customer} />
             <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.add}`} exact component={AddCustomer} />
-            <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}:uid`} exact component={EditCustomer} />
+            <Route path={`${ROUTES.CUSTOMER_URLS.customer}${ROUTES.CUSTOMER_URLS.edit}:id`} exact component={EditCustomer} />
             <Route path={ROUTES.MILK_URLS.milk} exact component={Milk} />
             <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`} exact component={AddMilk} />
-            <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}:date/:uid`} exact component={EditMilk} />
+            <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}:id`} exact component={EditMilk} />
             <Route path={`${ROUTES.PAYMENT_CALCULATOR}`} exact component={PaymentCalculator} />
             <Footer />
         </Container>

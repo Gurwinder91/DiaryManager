@@ -2,16 +2,12 @@ import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { Typography } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
-import { connect } from 'react-redux';
-import { compose } from 'recompose';
 
 import { MyForm, MyInput } from '../../core';
-import { withFirebase } from '../Firebase';
 import { ErrorGenerator } from '../../utilty'
 import * as ROUTES from '../../constants/routes';
-import * as ACTIONS from '../../actions';
 
-const ForgetPassword = ({ firebase, showSnackbar }) => {
+const ForgetPassword = () => {
     const { register, handleSubmit, errors, setValue, reset } = useForm();
 
     const location = useLocation();
@@ -20,14 +16,14 @@ const ForgetPassword = ({ firebase, showSnackbar }) => {
     React.useEffect(() => setValue('email', location.state.email), [location.state]);
 
     const onSubmit = (data) => {
-        firebase.doPasswordReset(data.email)
-            .then(() => {
-                reset();
-                showSnackbar('Email is sent. Please check your email', 'success');
-                history.push(ROUTES.SIGN_IN);
-            }).catch((err) => {
-                showSnackbar(err.message || err.errors.message, 'error');
-            })
+//    //     firebase.doPasswordReset(data.email)
+//             .then(() => {
+//                 reset();
+//                 //showSnackbar('Email is sent. Please check your email', 'success');
+//                 history.push(ROUTES.SIGN_IN);
+//             }).catch((err) => {
+//                // showSnackbar(err.message || err.errors.message, 'error');
+//             })
     }
 
     return (
@@ -59,12 +55,4 @@ const ForgetPassword = ({ firebase, showSnackbar }) => {
     );
 };
 
-const mapDispatchToProps = dispatch => ({
-    showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity })
-})
-
-
-export default compose(
-    withFirebase,
-    connect(null, mapDispatchToProps),
-)(ForgetPassword);
+export default ForgetPassword;

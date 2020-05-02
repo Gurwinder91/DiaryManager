@@ -3,26 +3,23 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Typography } from '@material-ui/core';
 import { compose } from 'recompose';
-import { connect } from 'react-redux';
 
 import { MyForm, MyInput } from '../../core';
-import { withFirebase } from '../Firebase';
 import { ErrorGenerator } from '../../utilty';
 import { withAuthorization } from '../Session';
-import * as ACTIONS from '../../actions';
 
-const UpdatePassword = ({ firebase, showSnackbar }) => {
+const UpdatePassword = () => {
     const { register, handleSubmit, errors, getValues, reset } = useForm();
 
     const onSubmit = (data) => {
         const { password } = data;
-        firebase.doPasswordUpdate(password)
-            .then((res) => {
-                reset();
-                showSnackbar('New password updated successfully', 'success');
-            }).catch((err)=> {
-                showSnackbar(err.message || err.errors.message, 'error');
-            })
+        // firebase.doPasswordUpdate(password)
+        //     .then((res) => {
+        //         reset();
+        //         showSnackbar('New password updated successfully', 'success');
+        //     }).catch((err) => {
+        //         showSnackbar(err.message || err.errors.message, 'error');
+        //     })
     }
 
     return (
@@ -70,13 +67,7 @@ const UpdatePassword = ({ firebase, showSnackbar }) => {
     );
 }
 
-const mapDispatchToProps = dispatch => ({
-    showSnackbar: (message, severity) => dispatch({type: ACTIONS.SHOW_SNACKBAR, message, severity})
-})
-
 export default compose(
     withAuthorization(authUser => !!authUser),
-    withFirebase,
-    connect(null, mapDispatchToProps)
 )
-    (UpdatePassword);
+(UpdatePassword);

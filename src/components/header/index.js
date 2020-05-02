@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation, useHistory } from 'react-router-dom';
-import { IconButton, AppBar, Toolbar, Typography, makeStyles, Link } from '@material-ui/core';
+import { IconButton, AppBar, Toolbar, Typography, makeStyles, Link, LinearProgress } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { connect } from 'react-redux';
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-const Header = ({ authUser, menuIconClick }) => {
+const Header = ({ auth, loader, menuIconClick }) => {
     const classes = useStyles();
     const history = useHistory();
     const location = useLocation();
@@ -61,8 +61,9 @@ const Header = ({ authUser, menuIconClick }) => {
     return (
         <HideOnSlide>
             <AppBar className={classes.root}>
+                {loader && <LinearProgress color="secondary" />}
                 <Toolbar>
-                    {authUser ? getMenuIcon() : null}
+                    {auth ? getMenuIcon() : null}
                     <Typography variant="h6" className={classes.title}>
                         <Link component={NavLink} to="/" className={classes.link}>
                             Milk Diary Manager
@@ -76,7 +77,8 @@ const Header = ({ authUser, menuIconClick }) => {
 }
 
 const mapStateToProps = state => ({
-    authUser: state.sessionState.authUser,
+    auth: state.firebase.auth,
+    loader: state.loader
 });
 
 export default connect(mapStateToProps)(Header);

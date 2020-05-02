@@ -24,13 +24,9 @@ const ActionMenu = (props) => {
             props.whenMenuClosed(actionType);
     };
 
-    const getName = () => {
-        return props.authUser.name.slice(0, 1).toUpperCase();
-    }
-
     return (
         <div>
-            <Avatar className={classes.avatar} onClick={handleClick}>{getName()}</Avatar>
+            <Avatar className={classes.avatar} onClick={handleClick}>{props.profile.initials}</Avatar>
             <MyActionMenu open={open} anchorEl={anchorEl} handleClose={handleClose} />
         </div>
     );
@@ -61,7 +57,8 @@ function MyActionMenu(props) {
 }
 
 const mapStateToProps = state => ({
-    authUser: state.sessionState.authUser,
+    auth: state.firebase.auth,
+    profile: state.firebase.profile,
 });
 
 export default connect(mapStateToProps)(ActionMenu);

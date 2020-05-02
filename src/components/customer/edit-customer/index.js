@@ -1,69 +1,47 @@
 
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import React from 'react';
 import { Typography } from '@material-ui/core';
-import { compose } from 'recompose';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
+import { firestoreConnect, isLoaded } from 'react-redux-firebase'
 
-import { withFirebase } from '../../Firebase';
 import CustomerForm from '../customer-form';
-import * as ACTIONS from '../../../actions';
 import { withAuthorization } from '../../Session';
 import * as CONSTANTS from '../../../constants';
 
-class EditCustomer extends Component {
+const EditCustomer = (props) => {
 
-    componentDidMount() {
-        const uid = this.props.match.params.uid;
-        this.props.firebase.customers()
-            .child(uid)
-            .on('value', snapshot => {
-                this.props.onSetCustomer(
-                    snapshot.val(),
-                    uid,
-                );
-            });
-    }
-
-    componentWillUnmount() {
-        this.props.firebase.customers().off();
-    }
-
-    render = () => {
-        return (
-            <>
-                <Typography variant="h4" align="center">
-                    Edit Customer
+    return (
+        <>
+            <Typography variant="h4" align="center">
+                Edit Customer
                 </Typography>
-                <CustomerForm customer={this.props.customer} uid={this.props.match.params.uid} />
-            </>
-        )
-    }
+            {
+                props.customer && <CustomerForm customer={props.customer} id={props.match.params.id} />
+            }
+
+        </>
+    )
 }
 
 const mapStateToProps = (state, { match }) => {
-    let customer = {};
-    if (state.customerState.customers && Object.keys(state.customerState.customers).length) {
-        customer = state.customerState.customers[match.params.uid];
-    }
+    const customers = state.firestore.data.customers;
+    const customer = customers ? customers[match.params.id] : null
 
     return {
         customer: customer
     };
 }
 
-const mapDispatchToProps = dispatch => ({
-    onSetCustomer: (customer, uid) => dispatch({ type: ACTIONS.CUSTOMER_SET, customer, uid })
-})
-
 const condition = authUser => {
-    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
 }
 
 export default compose(
     withAuthorization(condition),
-    withRouter,
-    withFirebase,
-    connect(mapStateToProps, mapDispatchToProps)
+    connect(mapStateToProps),
+    firestoreConnect([{
+        collection: 'customers'
+    }])
 )(EditCustomer)
 

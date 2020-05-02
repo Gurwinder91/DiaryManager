@@ -1,5 +1,5 @@
 
-import * as ACTIONS from '../actions';
+import {SHOW_SNACKBAR, HIDE_SNACKBAR} from '../actions/snackbar';
 
 const INTIAL_STAGE = {
     snackBar: {
@@ -11,7 +11,7 @@ const INTIAL_STAGE = {
 
 export default (state = INTIAL_STAGE, action) => {
     switch (action.type) {
-        case ACTIONS.SHOW_SNACKBAR:
+        case SHOW_SNACKBAR:
             return {
                 ...state,
                 snackBar: {
@@ -20,7 +20,7 @@ export default (state = INTIAL_STAGE, action) => {
                     severity: action.severity,
                 },
             }
-        case ACTIONS.HIDE_SNACKBAR:
+        case HIDE_SNACKBAR:
             return {
                 ...state,
                 snackBar: {

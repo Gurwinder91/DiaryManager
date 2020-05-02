@@ -5,24 +5,19 @@ import { useHistory } from 'react-router-dom';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { firestoreConnect } from 'react-redux-firebase';
 
-import { withFirebase } from '../../Firebase';
 import { ActionIcon, MyConfirmDialog } from '../../../core';
 import useStyles from './style';
 import * as ROUTES from '../../../constants/routes';
-import * as ACTIONS from '../../../actions';
+import { removeMilk } from '../../../actions/milk';
 
-const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
+const MilkList = ({ customers, milks, removeMilk }) => {
 
     const history = useHistory();
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [dialogValue, setDialogValue] = React.useState({});
-
-    const removeMilkEntry = (uid) => {
-        firebase.milks().child(date).child(uid).remove()
-            .then(() => onRemoveMilk(date, uid))
-    }
 
     const onMenuclosed = (milk, actionType) => {
         switch (actionType) {
@@ -31,7 +26,7 @@ const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
                 setDialogValue(milk);
                 break;
             case 'edit':
-                history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}${date}/${milk.uid}`, { childRoute: true });
+                history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}${milk.id}`, { childRoute: true });
                 break;
             default:
                 break;
@@ -41,7 +36,7 @@ const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
     const dialogClosedHandler = (output) => {
         setOpen(false);
         if (output) {
-            removeMilkEntry(output.uid);
+            removeMilk(output.id);
         }
     }
 
@@ -56,13 +51,15 @@ const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
         }
     }
 
-    const getCustomerName = (customerId) => Object.keys(customers).length ? customers[customerId].customerName : '';
+    const getCustomerName = (customerId) => {
+        return customers ? customers[customerId].customerName : '';
+    }
 
     return (
         <>
             {
                 milks.map(item => (
-                    <Fragment key={item.uid}>
+                    <Fragment key={item.id}>
                         <ListItem>
                             <ListItemAvatar>
                                 <Avatar className={`${classes.largeAvatar} ${getClassName(item.milkType)}`}>
@@ -117,16 +114,17 @@ const MilkList = ({customers,  milks, firebase, onRemoveMilk, date }) => {
 }
 
 const mapStateToProps = state => ({
-    customers: state.customerState.customers,
+    customers: state.firestore.data.customers,
 })
-
 const mapDispatchToProps = dispatch => ({
-    onRemoveMilk: (date, uid) => dispatch({ type: ACTIONS.MILK_REMOVE, date, uid })
+    removeMilk: (id) => dispatch(removeMilk(id))
 })
 
 export default compose(
-    withFirebase,
     connect(
         mapStateToProps,
-        mapDispatchToProps)
+        mapDispatchToProps),
+    firestoreConnect([
+        { collection: 'customers' },
+    ])
 )(MilkList);

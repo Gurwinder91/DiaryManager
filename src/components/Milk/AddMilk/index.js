@@ -4,12 +4,12 @@ import moment from 'moment';
 import { Typography } from '@material-ui/core';
 
 import MilkForm from '../MilkForm';
-import { withAuthorization } from '../../Session';
+import {withAuthorization} from '../../Session';
 
 const AddMilk = () => {
     const time = moment().format('A');
     const milk = {
-        date: moment(),
+        date: moment().format('DD-MM-YYYY'),
         customerId: '',
         milkType: 'BM',
         time: time === 'PM' ? 'Evening' : 'Morning',
@@ -24,7 +24,7 @@ const AddMilk = () => {
             <Typography variant="h4" align="center">
                 Add Milk
             </Typography>
-            <MilkForm milk={milk} mode='add' />
+            <MilkForm milk={milk} />
         </>
     )
 

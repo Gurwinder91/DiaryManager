@@ -1,14 +1,13 @@
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { Typography, MenuItem } from '@material-ui/core';
 
 import * as ROUTES from '../../constants/routes';
-import { withFirebase } from '../Firebase';
 import { MyForm, MyInput, MySelect } from '../../core';
-import * as ACTIONS from '../../actions';
+import { createUser } from '../../actions/user';
 import { ErrorGenerator } from '../../utilty';
 import * as CONSTANTS from '../../constants';
 import { withAuthorization } from '../Session';
@@ -18,17 +17,18 @@ export default () => (
         <Typography variant="h4" align="center">
             Add User
         </Typography>
-        <Typography variant="body1" style={{marginTop: 20}}>
+        <Typography variant="body1" style={{ marginTop: 20 }}>
             Email you enter while creating user should be valid. It will help to reset your
-            password in case you forget it. 
+            password in case you forget it.
         </Typography>
         <AddUserForm />
     </>
 );
 
-const AddUserFormBase = ({ firebase, history, onUserSignUp, showSnackbar }) => {
+const AddUserFormBase = ({ onUserSignUp, showSnackbar }) => {
+    const history = useHistory();
     const { register, handleSubmit, errors, getValues, setValue } = useForm();
-    const [ role, setRole ] = React.useState('MILK_ENTRY');
+    const [role, setRole] = React.useState('MILK_ENTRY');
 
     const handleRole = (event) => {
         setValue('role', event.target.value);
@@ -36,31 +36,14 @@ const AddUserFormBase = ({ firebase, history, onUserSignUp, showSnackbar }) => {
     }
 
     React.useEffect(() => {
-        register({name: 'role'});
+        register({ name: 'role' });
         setValue('role', 'MILK_ENTRY');
     }, [register]);
-     
+
     const onSubmit = (data) => {
         const { confirmPassword, ...user } = data;
-        let uid;
-        fetch(`${CONSTANTS.BASE_URL}create`, {
-            method: 'POST',
-            body: JSON.stringify(user),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then((user) => user.json())
-            .then((user) => {
-                uid = user.uid;
-                return firebase.users().child(user.uid).set({ name: data.name, email: data.email, disabled: false, role: data.role })
-            })
-            .then(() => onUserSignUp({ name: data.name, email: data.email, disabled: false, role: data.role }, uid))
-            .then(() => {
-                showSnackbar('User added successfully', 'success');
-                history.push(ROUTES.ADMIN);
-            })
-            .catch((err) => showSnackbar(err.message || err.errors.message, 'error'));
+        onUserSignUp(user);
+        history.push(ROUTES.ADMIN);
     }
 
     return (
@@ -143,18 +126,15 @@ const AddUserFormBase = ({ firebase, history, onUserSignUp, showSnackbar }) => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    onUserSignUp: (user, uid) => dispatch({ type: ACTIONS.USER_SET, user, uid }),
-    showSnackbar: (message, severity) => dispatch({ type: ACTIONS.SHOW_SNACKBAR, message, severity }),
+    onUserSignUp: (user) => dispatch(createUser(user)),
 });
 
 const condition = authUser => {
-    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
 }
 
 const AddUserForm = compose(
     withAuthorization(condition),
-    withRouter,
-    withFirebase,
     connect(null, mapDispatchToProps)
 )(AddUserFormBase);
 

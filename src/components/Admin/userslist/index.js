@@ -5,7 +5,7 @@ import PersonIcon from '@material-ui/icons/Person';
 export default ({users, disableUser}) => {
     return (
         users.map(user =>
-            <ListItem key={user.uid} >
+            <ListItem key={user.id} >
                 <ListItemAvatar>
                     <Avatar>
                         <PersonIcon />

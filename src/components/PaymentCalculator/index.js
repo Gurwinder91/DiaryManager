@@ -2,36 +2,30 @@
 import React, { Fragment } from 'react';
 import { Typography, ListItemText, ListItem, Divider } from '@material-ui/core';
 import { compose } from 'recompose';
-import { connect } from 'react-redux';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
+import { useFirestoreConnect, isLoaded } from 'react-redux-firebase';
 
-import { withFirebase } from '../Firebase';
 import Filter from './Filter';
 import { MyList, MySkeleton } from '../../core';
-import * as ACTIONS from '../../actions';
 import * as CONSTANTS from '../../constants';
 import { withAuthorization } from '../Session';
 
-const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustomers }) => {
+const PaymentCalculator = () => {
     const [payments, setPayments] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
 
-    React.useEffect(() => {
-        setLoading(true);
-        firebase.milks().limitToLast(30).once('value', snapshot => {
-            onSetMilks(snapshot.val());
-            setLoading(false);
-        })
-        return () => firebase.milks().off();
-    }, [firebase]);
-
-    React.useEffect(() => {
-        firebase.customers().on('value', snapshot => {
-            onSetCustomers(snapshot.val())
-        });
-
-        return () => firebase.customers().off();
-    }, [firebase])
+    useFirestoreConnect(() => [
+        { collection: 'customers' },
+        {
+            collection: 'milks',
+            where: [
+                ['date', '>=', moment().subtract(1, 'months').format('DD-MM-YYYY')],
+                ['date', '<=', moment().format('DD-MM-YYYY')],
+            ],
+        }
+    ])
+    const customers = useSelector(state => state.firestore.data.customers);
+    const milks = useSelector(state => state.firestore.ordered.milks);
 
     const paymentCalculateHandler = (filterObj) => {
         let payments = arrangeData(filterObj);
@@ -78,21 +72,13 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
 
     const arrangeData = (filterObj) => {
         let payments = []
-        Object.keys(milks).filter(date => compareLessThanEqualToDate(filterObj.startDate, date) && compareGreatorThanEqualToDate(filterObj.endDate, date)).forEach(date => {
-            Object.keys(milks[date]).forEach(uid => {
-                let milk = {
-                    ...milks[date][uid],
-                    uid: uid,
-                    date: date
-                };
-
+        milks.filter(milk => compareLessThanEqualToDate(filterObj.startDate, milk.date) && compareGreatorThanEqualToDate(filterObj.endDate, milk.date))
+            .forEach(milk => {
                 milk = filterByCustomerId(filterObj, milk);
-
                 if (milk) {
                     payments.push(milk);
                 }
             });
-        });
 
         return payments;
     }
@@ -110,7 +96,7 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
         return sum.toFixed(2);
     }
 
-    const getCustomerName = (customerId) => Object.keys(customers).length ? customers[customerId].customerName : '';
+    const getCustomerName = (customerId) => customers[customerId].customerName;
 
     const renderPayments = () => {
         let elements = [];
@@ -139,39 +125,25 @@ const PaymentCalculator = ({ customers, firebase, onSetMilks, milks, onSetCustom
     }
 
     return (
-        loading ?
-            <MySkeleton />
-            :
-            <>
-                <Typography variant="h4" component="h4" align="center">
-                    Payment Calculator
-            </Typography>
-                <Filter onCalculate={paymentCalculateHandler} />
-                <MyList>
-                    {renderPayments()}
-                </MyList>
-            </>
+        isLoaded(milks) ?
+        <>
+            <Typography variant="h4" component="h4" align="center">
+                Payment Calculator
+                </Typography>
+            <Filter onCalculate={paymentCalculateHandler} customers={customers} />
+            <MyList>
+                {renderPayments()}
+            </MyList>
+        </>
+        :
+        <MySkeleton />
     )
 }
 
-const mapStateToProps = state => {
-    return {
-        customers: state.customerState.customers,
-        milks: state.milkState.milks,
-    }
-}
-
-const mapDispatchToProps = dispatch => ({
-    onSetMilks: (milks) => dispatch({ type: ACTIONS.MILKS_SET, milks }),
-    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
-})
-
 const condition = authUser => {
-    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
 }
 
 export default compose(
     withAuthorization(condition),
-    withFirebase,
-    connect(mapStateToProps, mapDispatchToProps)
 )(PaymentCalculator);

@@ -1,15 +1,14 @@
 import { combineReducers } from 'redux';
-import sessionReducer from './session';
-import userReducer from './user';
-import milkReducer from './milk';
-import customerReducer from './customer';
+import { firestoreReducer } from 'redux-firestore';
+import { firebaseReducer } from 'react-redux-firebase'
+
 import snackBarReducer from './snackbar';
+import loaderReducer from './loader';
 
 const rootReducer = combineReducers({
-    sessionState: sessionReducer,
-    userState: userReducer,
-    customerState: customerReducer,
-    milkState: milkReducer,
-    snackBarState: snackBarReducer,
+    snackBar: snackBarReducer,
+    loader: loaderReducer,
+    firebase: firebaseReducer,
+    firestore: firestoreReducer,
 });
 export default rootReducer;

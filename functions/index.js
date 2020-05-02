@@ -46,6 +46,4 @@ app.post('/disable', (req, res) => {
         })
 })
 
-
 exports.manageUser = functions.https.onRequest(app);
-

@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import moment from "moment";
 
 import CustomerForm from '../customer-form';
-import { withAuthorization } from '../../Session';
+import {withAuthorization} from '../../Session';
 import * as CONSTANTS from '../../../constants';
 
 const customer = {
@@ -27,7 +27,7 @@ const AddCustomer = (props) => {
 }
 
 const condition = authUser => {
-    return authUser && (authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN);
+    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
 }
 
 export default withAuthorization(condition)(AddCustomer);

@@ -30,8 +30,8 @@ const NavList = (props) => {
 
     const getList = () => {
         let list = [];
-        if (props.authUser)
-            list = props.list.filter(item => item.access.includes(props.authUser.role));
+        if (props.profile)
+            list = props.list.filter(item => item.access.includes(props.profile.role));
 
         return (
             list.map((li) => (
@@ -73,7 +73,7 @@ const NavList = (props) => {
 }
 
 const mapStateToProps = state => ({
-    authUser: state.sessionState.authUser,
+    profile: state.firebase.profile,
 });
 
 export default connect(mapStateToProps)(NavList);

@@ -4,46 +4,30 @@ import { useHistory } from "react-router-dom";
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
+import { useFirestoreConnect, isLoaded } from 'react-redux-firebase';
 
-import { withFirebase } from '../Firebase';
 import AddMilk from './AddMilk';
 import EditMilk from './EditMilk';
 import MilkList from './MilkList';
-import { MyList, AddCircle, MyListSkeleton } from '../../core';
+import { MyList, AddCircle } from '../../core';
 import * as ROUTES from '../../constants/routes';
 import MilkExpensionPanel from './MilkExpensionPanel';
 import MilkFilters from './MilkFilters';
-import * as ACTIONS from '../../actions';
-import { MyObject } from '../../utilty';
 import MilkSkeleton from './MilkSkeleton';
 import { withAuthorization } from '../Session';
 
 const todayDate = moment();
 
-const MilkBase = ({ firebase, onSetMilks, getMilksByDate, onSetCustomers, }) => {
+const MilkBase = () => {
     const history = useHistory();
-    const [loading, setLoading] = React.useState(false);
     const [date, setDate] = React.useState(todayDate);
     const [time, setTime] = React.useState('All');
 
-    React.useEffect(() => {
-        setLoading(true);
-        const formattedDate = getFormattedDate(date);
-        firebase.milks().child(formattedDate).on('value', snapshot => {
-            onSetMilks(snapshot.val(), formattedDate);
-            setLoading(false);
-        }, () => setLoading(false));
-
-        return () => firebase.milks().off();
-    }, [date])
-
-    React.useEffect(() => {
-        firebase.customers().on('value', snapshot => {
-            onSetCustomers(snapshot.val())
-        });
-
-        return () => firebase.customers().off();
-    }, [firebase])
+    useFirestoreConnect(() => [
+        { collection: 'milks', where: [['date', '==', date.format('DD-MM-YYYY')]] }
+    ])
+    const milks = useSelector(state => state.firestore.ordered.milks)
 
     const calculateMilkMath = (milksToCalc) => {
         const BMMilks = milksToCalc.filter(item => item.milkType === 'BM').map(item => Number(item.milkQuantity));
@@ -63,64 +47,53 @@ const MilkBase = ({ firebase, onSetMilks, getMilksByDate, onSetCustomers, }) => 
         return arr.reduce((a, b) => a + b, 0);
     }
 
-    const getFormattedDate = (date) => {
-        return date.format('DD-MM-YYYY');
-    }
-
     const navigateTo = () => {
         history.push(`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`, { childRoute: true });
     }
 
-    const renderContent = () => {
-        const formattedDate = getFormattedDate(date);
-        let [ ...milks ] = getMilksByDate(formattedDate);
+    const renderMilk = () => {
+
+        let filteredMilks = milks;
         if (time !== 'All') {
-            milks = milks.filter(item => item.time === time);
+            filteredMilks = milks.filter(item => item.time === time);
         }
-        const milkMath = calculateMilkMath(milks);
+
+        const milkMath = (filteredMilks && filteredMilks.length) ? calculateMilkMath(filteredMilks) : null;
 
         return (
             <>
-                {milks.length ? <MilkExpensionPanel milkMath={milkMath} /> : null}
+                { milkMath && <MilkExpensionPanel milkMath={milkMath} />}
                 <MyList>
-                    {
-                        milks.length ? <MilkList milks={milks} date={formattedDate}/> : null
-                    }
+                    {(filteredMilks && filteredMilks.length) && <MilkList milks={filteredMilks} />}
                 </MyList>
-            </>)
+            </>
+        )
     }
 
     return (
-        loading
+        isLoaded(milks)
             ?
-            <MilkSkeleton />
-            :
             <>
                 <MilkFilters date={date} time={time} setDate={setDate} setTime={setTime} />
-
-                {renderContent()}
+                {renderMilk()}
                 <AddCircle whenClicked={navigateTo} />
             </>
+            :
+            <MilkSkeleton />
     )
 }
 
 
 const mapStateToProps = (state, props) => {
     return {
-        getMilksByDate: (date) => Object.keys(state.milkState.milks).length ? new MyObject(state.milkState.milks[date]).toArray() : [],
+        milks: state.firestore.ordered.milks,
     }
 }
 
 
-const mapDispatchToProps = dispatch => ({
-    onSetMilks: (milks, date) => dispatch({ type: ACTIONS.MILKS_SET_BY_DATE, milks, date }),
-    onSetCustomers: (customers) => dispatch({ type: ACTIONS.CUSTOMERS_SET, customers }),
-})
-
 const Milk = compose(
     withAuthorization(authUser => !!authUser),
-    withFirebase,
-    connect(mapStateToProps, mapDispatchToProps)
+    connect(mapStateToProps),
 )(MilkBase);
 
 export { Milk, AddMilk, EditMilk };
