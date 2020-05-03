@@ -28,9 +28,8 @@ const RightHeader = ({ auth, onSignOut }) => {
         }
     }
     const signOut = () => {
-        onSignOut().then(() => {
-            history.push(ROUTES.SIGN_IN);
-        });
+        onSignOut();
+        history.push(ROUTES.SIGN_IN);
     }
 
     const whenUserLoggedIn = () => {

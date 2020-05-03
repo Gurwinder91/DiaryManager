@@ -16,10 +16,11 @@ import { ErrorGenerator } from '../../../utilty';
 import * as ROUTES from '../../../constants/routes';
 import { addMilk, updateMilk } from '../../../actions/milk';
 
-const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
+const MilkForm = ({ milk, customers, addMilk, updateMilk, id, settings}) => {
     const { register, handleSubmit, errors, setValue } = useForm({
         defaultValues: { ...milk }
     });
+    const setting = settings && settings[0];
     const history = useHistory();
     const [milkType, setMilkType] = React.useState('BM');
     const [date, setDate] = React.useState(moment());
@@ -71,8 +72,8 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
 
     const calculateCMPrice = (milk) => {
 
-        const milkRate = Number(milk.milkRate);
-        const powderRate = (milkRate / 3) * Number(milk.milkSNF);
+        const milkRate = Number(setting.milkRate);
+        const powderRate = (milkRate / 3) * Number(setting.milkSNF);
         const gheeRate = (milkRate / 2) * Number(milk.milkFat);
         const rate = (gheeRate + powderRate) / 10;
         return (Number(milk.milkQuantity) * rate).toFixed(2);
@@ -80,7 +81,7 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
 
     const calculateBMPrice = (milk) => {
         const cream = Number(milk.milkQuantity) * Number(milk.milkFat);
-        return (cream * Number(milk.milkRate) / 10).toFixed(2);
+        return (cream * Number(setting.milkRate) / 10).toFixed(2);
     }
 
     const onSubmit = (data) => {
@@ -180,6 +181,7 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
 
 const mapStateToProps = state => ({
     customers: state.firestore.ordered.customers,
+    settings: state.firestore.ordered.settings
 })
 const mapDispatchToProps = dispatch => ({
     addMilk: (milk) => dispatch(addMilk(milk)),
@@ -189,7 +191,7 @@ const mapDispatchToProps = dispatch => ({
 export default compose(
     connect(mapStateToProps, mapDispatchToProps),
     firestoreConnect([
-        { collection: 'milks' },
+        { collection: 'settings' },
         { collection: 'customers' }
     ])
 )(MilkForm);

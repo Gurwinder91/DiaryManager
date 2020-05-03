@@ -2,12 +2,14 @@ import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { Typography } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
+import { connect } from 'react-redux';
 
 import { MyForm, MyInput } from '../../core';
 import { ErrorGenerator } from '../../utilty'
 import * as ROUTES from '../../constants/routes';
+import { forgetPassword } from '../../actions/auth';
 
-const ForgetPassword = () => {
+const ForgetPassword = ({ forgetPassword }) => {
     const { register, handleSubmit, errors, setValue, reset } = useForm();
 
     const location = useLocation();
@@ -16,14 +18,8 @@ const ForgetPassword = () => {
     React.useEffect(() => setValue('email', location.state.email), [location.state]);
 
     const onSubmit = (data) => {
-//    //     firebase.doPasswordReset(data.email)
-//             .then(() => {
-//                 reset();
-//                 //showSnackbar('Email is sent. Please check your email', 'success');
-//                 history.push(ROUTES.SIGN_IN);
-//             }).catch((err) => {
-//                // showSnackbar(err.message || err.errors.message, 'error');
-//             })
+        forgetPassword(data.email);
+        history.push(ROUTES.SIGN_IN);
     }
 
     return (
@@ -55,4 +51,8 @@ const ForgetPassword = () => {
     );
 };
 
-export default ForgetPassword;
+const mapDispatchToProps = dispatch => ({
+    forgetPassword: (email) => dispatch(forgetPassword(email)),
+});
+
+export default connect(null, mapDispatchToProps)(ForgetPassword);

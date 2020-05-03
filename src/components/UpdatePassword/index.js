@@ -3,23 +3,20 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Typography } from '@material-ui/core';
 import { compose } from 'recompose';
+import { connect } from 'react-redux';
 
 import { MyForm, MyInput } from '../../core';
 import { ErrorGenerator } from '../../utilty';
 import { withAuthorization } from '../Session';
+import { updatePassword } from '../../actions/auth';
 
-const UpdatePassword = () => {
+const UpdatePassword = ({ updatePassword }) => {
     const { register, handleSubmit, errors, getValues, reset } = useForm();
 
     const onSubmit = (data) => {
         const { password } = data;
-        // firebase.doPasswordUpdate(password)
-        //     .then((res) => {
-        //         reset();
-        //         showSnackbar('New password updated successfully', 'success');
-        //     }).catch((err) => {
-        //         showSnackbar(err.message || err.errors.message, 'error');
-        //     })
+        updatePassword(password);
+        reset();
     }
 
     return (
@@ -67,7 +64,13 @@ const UpdatePassword = () => {
     );
 }
 
+const mapDispatchToProps = dispatch => ({
+    updatePassword: (password) => dispatch(updatePassword(password)),
+});
+
+
 export default compose(
     withAuthorization(authUser => !!authUser),
+    connect(null, mapDispatchToProps),
 )
-(UpdatePassword);
+    (UpdatePassword);
