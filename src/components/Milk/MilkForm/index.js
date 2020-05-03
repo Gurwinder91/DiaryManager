@@ -24,7 +24,6 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
     const [milkType, setMilkType] = React.useState('BM');
     const [date, setDate] = React.useState(moment());
     const [customerId, setCustomerId] = React.useState('');
-    const [displaySNF, setDisplaySNF] = React.useState(false);
 
     React.useEffect(() => {
         register({ name: "milkType" });
@@ -38,9 +37,6 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
             setValue('date', milk.date);
             setValue('customerId', milk.customerId);
 
-            if (milk.milkType === 'CM') {
-                setDisplaySNF(true);
-            }
             setMilkType(milk.milkType);
             setDate(moment(milk.date, 'DD-MM-YYYY'));
             setCustomerId(milk.customerId);
@@ -54,9 +50,6 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
 
     const handleMilkType = option => {
         const value = option.target.value;
-        if (value === 'CM') {
-            setDisplaySNF(true);
-        }
         setValue('milkType', value);
         setMilkType(value);
     }
@@ -133,30 +126,6 @@ const MilkForm = ({ milk, customers, addMilk, updateMilk, id, }) => {
                 value={date}
                 onChange={handleDate}
             />
-
-            <MyInput
-                type="number"
-                name="milkRate"
-                label="Milk Rate"
-                style={{ width: '100%' }}
-                inputRef={register({ required: true })}
-                error={!!errors.milkRate}
-                helperText={ErrorGenerator.getErrorMessage(errors, 'milkRate')}
-            />
-
-            {
-                displaySNF ?
-                    <MyInput
-                        type="number"
-                        name="milkSNF"
-                        label="Milk SNF"
-                        style={{ width: '100%' }}
-                        inputRef={register({ required: true })}
-                        error={!!errors.milkSNF}
-                        helperText={ErrorGenerator.getErrorMessage(errors, 'milkSNF')}
-                    />
-                    : null
-            }
 
             <MyInput
                 required

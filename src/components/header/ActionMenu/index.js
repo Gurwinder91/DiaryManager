@@ -47,6 +47,11 @@ function MyActionMenu(props) {
                     Update Password
                 </Typography>
             </MenuItem>
+            <MenuItem onClick={props.handleClose.bind(null, 'settings')}>
+                <Typography variant="inherit">
+                    Settings
+                </Typography>
+            </MenuItem>
             <MenuItem onClick={props.handleClose.bind(null, 'signout')}>
                 <Typography variant="inherit">
                     Logout

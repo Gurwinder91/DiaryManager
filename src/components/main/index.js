@@ -15,6 +15,7 @@ import PaymentCalculator from "../PaymentCalculator";
 import AddUser from "../AddUser";
 import ForgetPassword from "../ForgetPassword";
 import UpdatePassword from '../UpdatePassword';
+import Settings from '../Settings';
 
 export default () => {
 
@@ -22,7 +23,7 @@ export default () => {
         <Container className="main">
             <Route path={ROUTES.LANDING} exact render={() =>
                 (
-                    <h1> Welcome Gurwinder</h1>
+                    <h1> Welcome to Diary Manager App</h1>
                 )
             } />
             <Route path={ROUTES.ADD_USER} exact component={AddUser} />
@@ -37,6 +38,7 @@ export default () => {
             <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.add}`} exact component={AddMilk} />
             <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}:id`} exact component={EditMilk} />
             <Route path={`${ROUTES.PAYMENT_CALCULATOR}`} exact component={PaymentCalculator} />
+            <Route path={`${ROUTES.SETTINGS}`} exact component={Settings} />
             <Footer />
         </Container>
     );

@@ -7,7 +7,7 @@ import { firestoreConnect, isLoaded } from 'react-redux-firebase';
 
 import { MyConfirmDialog, AddCircle, MyList, MyListSkeleton } from '../../core';
 import UsersList from './UsersList';
-import * as CONSTANTS from '../../constants';
+import * as ROLES from '../../constants/roles';
 import * as ROUTES from '../../constants/routes';
 import { disableUser } from '../../actions/user';
 import { withAuthorization } from '../Session';
@@ -64,8 +64,8 @@ const mapDispatchToProps = dispatch => ({
     disableUser: user => dispatch(disableUser(user)),
 })
 
-const condition = authUser => {
-    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
+const condition = auth => {
+    return auth.role === ROLES.ADMIN || auth.role === ROLES.SUPER_ADMIN;
 }
 
 export default compose(

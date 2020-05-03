@@ -8,31 +8,31 @@ import Header from "./components/Header";
 import Main from "./components/Main";
 import { MySwipeableDrawer, MySnackbar } from "./core";
 import * as ROUTES from "./constants/routes";
-import * as CONSTANTS from './constants';
+import * as ROLES from './constants/roles';
 
 const navList = [
     {
         text: 'Customer',
         link: ROUTES.CUSTOMER_URLS.customer,
         id: 1,
-        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN]
+        access: [ROLES.SUPER_ADMIN, ROLES.ADMIN]
     }, {
         text: 'Milk',
         link: ROUTES.MILK_URLS.milk,
         id: 2,
-        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN, CONSTANTS.MILK_ENTRY]
+        access: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MILK_ENTRY]
     },
     {
         text: 'Admin',
         link: ROUTES.ADMIN,
         id: 3,
-        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN]
+        access: [ROLES.SUPER_ADMIN, ROLES.ADMIN]
     },
     {
         text: 'Payment Calculator',
         link: ROUTES.PAYMENT_CALCULATOR,
         id: 4,
-        access: [CONSTANTS.SUPER_ADMIN, CONSTANTS.ADMIN]
+        access: [ROLES.SUPER_ADMIN, ROLES.ADMIN]
     }
 ];
 

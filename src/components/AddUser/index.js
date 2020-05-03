@@ -9,7 +9,7 @@ import * as ROUTES from '../../constants/routes';
 import { MyForm, MyInput, MySelect } from '../../core';
 import { createUser } from '../../actions/user';
 import { ErrorGenerator } from '../../utilty';
-import * as CONSTANTS from '../../constants';
+import * as ROLES from '../../constants/roles';
 import { withAuthorization } from '../Session';
 
 export default () => (
@@ -129,8 +129,8 @@ const mapDispatchToProps = dispatch => ({
     onUserSignUp: (user) => dispatch(createUser(user)),
 });
 
-const condition = authUser => {
-    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
+const condition = auth => {
+    return auth.role === ROLES.ADMIN || auth.role === ROLES.SUPER_ADMIN;
 }
 
 const AddUserForm = compose(

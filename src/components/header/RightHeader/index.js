@@ -17,6 +17,9 @@ const RightHeader = ({ auth, onSignOut }) => {
             case 'updatePassword':
                 history.push(ROUTES.UPDATE_PASSWORD);
                 break;
+            case 'settings':
+                history.push(ROUTES.SETTINGS);
+                break;
             case 'signout':
                 signOut();
                 break;

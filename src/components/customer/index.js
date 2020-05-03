@@ -10,7 +10,7 @@ import AddCustomer from './add-customer';
 import EditCustomer from './edit-customer';
 import CustomersList from './customers-list';
 import { withAuthorization } from '../Session';
-import * as CONSTANTS from '../../constants';
+import * as ROLES from '../../constants/roles';
 
 const CustomerBase = ({ customers }) => {
     console.log(customers);
@@ -41,8 +41,8 @@ const mapStateToProps = state => ({
     customers: state.firestore.ordered.customers,
 })
 
-const condition = authUser => {
-    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
+const condition = auth => {
+    return auth.role === ROLES.ADMIN || auth.role === ROLES.SUPER_ADMIN;
 }
 
 const Customer = compose(

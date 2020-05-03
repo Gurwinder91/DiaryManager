@@ -8,7 +8,7 @@ import { useFirestoreConnect, isLoaded } from 'react-redux-firebase';
 
 import Filter from './Filter';
 import { MyList, MySkeleton } from '../../core';
-import * as CONSTANTS from '../../constants';
+import * as ROLES from '../../constants/roles';
 import { withAuthorization } from '../Session';
 
 const PaymentCalculator = () => {
@@ -140,8 +140,8 @@ const PaymentCalculator = () => {
     )
 }
 
-const condition = authUser => {
-    return authUser.role === CONSTANTS.ADMIN || authUser.role === CONSTANTS.SUPER_ADMIN;
+const condition = auth => {
+    return auth.role === ROLES.ADMIN || auth.role === ROLES.SUPER_ADMIN;
 }
 
 export default compose(

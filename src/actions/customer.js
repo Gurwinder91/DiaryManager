@@ -1,11 +1,6 @@
 import { hideLoader, showLoader } from './loader';
 import { showSnackbar } from './snackbar';
 
-export const CREATE_CUSTOMER_SUCCESS = 'CREATE_CUSTOMER_SUCCESS';
-export const CREATE_CUSTOMER_ERROR = 'CREATE_CUSTOMER_ERROR';
-export const REMOVE_CUSTOMER_SUCCESS = 'REMOVE_CUSTOMER_SUCCESS';
-export const REMOVE_CUSTOMER_ERROR = 'REMOVE_CUSTOMER_ERROR';
-
 export const createCustomer = (customer) => {
     return (dispatch, getState, { getFirestore }) => {
         const firestore = getFirestore();

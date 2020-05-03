@@ -1,12 +1,11 @@
 
-import * as CONSTANTS from '../constants';
 import { showSnackbar } from './snackbar';
 import { showLoader, hideLoader } from './loader';
 
 export const createUser = (user) => {
     return (dispatch) => {
         dispatch(showLoader());
-        fetch(`${CONSTANTS.BASE_URL}create`, {
+        fetch(`${process.env.REACT_APP_BASE_URL}create`, {
             method: 'POST',
             body: JSON.stringify(user),
             headers: {
@@ -25,7 +24,7 @@ export const createUser = (user) => {
 export const disableUser = (user) => {
     return dispatch => {
         dispatch(showLoader());
-        fetch(`${CONSTANTS.BASE_URL}disable`,
+        fetch(`${process.env.REACT_APP_BASE_URL}disable`,
             {
                 method: 'POST',
                 headers: {
@@ -72,5 +71,11 @@ const addFirestoreUser = (userId, user) => {
 
 const getInitials = (name) => {
     const nameArr = name.split(' ');
-    return `${nameArr.shift().slice(0, 1).toUpperCase()}${nameArr.pop().slice(0, 1).toUpperCase()}`;
+    const firstNameIntials = nameArr.shift().slice(0, 1).toUpperCase();
+    let lastNameIntials = nameArr.pop() || '';
+    if (lastNameIntials) {
+        lastNameIntials = lastNameIntials.slice(0, 1).toUpperCase()
+    }
+
+    return `${firstNameIntials}${lastNameIntials}`;
 }
