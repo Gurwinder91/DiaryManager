@@ -6,7 +6,6 @@ import { Container } from '@material-ui/core';
 import './style.scss';
 import { Customer, AddCustomer, EditCustomer } from "../customer";
 import { Milk, AddMilk, EditMilk } from '../Milk';
-import Footer from '../Footer';
 
 import * as ROUTES from '../../constants/routes';
 import AdminPage from "../Admin";
@@ -39,7 +38,7 @@ export default () => {
             <Route path={`${ROUTES.MILK_URLS.milk}${ROUTES.MILK_URLS.edit}:id`} exact component={EditMilk} />
             <Route path={`${ROUTES.PAYMENT_CALCULATOR}`} exact component={PaymentCalculator} />
             <Route path={`${ROUTES.SETTINGS}`} exact component={Settings} />
-            <Footer />
+           
         </Container>
     );
 }

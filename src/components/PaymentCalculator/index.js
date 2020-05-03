@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 import { Typography, ListItemText, ListItem, Divider } from '@material-ui/core';
 import { compose } from 'recompose';
 import moment from 'moment';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import { useFirestoreConnect, isLoaded } from 'react-redux-firebase';
 
 import Filter from './Filter';
@@ -11,7 +11,7 @@ import { MyList, MySkeleton } from '../../core';
 import * as ROLES from '../../constants/roles';
 import { withAuthorization } from '../Session';
 
-const PaymentCalculator = () => {
+const PaymentCalculator = ({ customers, milks, customersArr }) => {
     const [payments, setPayments] = React.useState([]);
 
     useFirestoreConnect(() => [
@@ -24,8 +24,6 @@ const PaymentCalculator = () => {
             ],
         }
     ])
-    const customers = useSelector(state => state.firestore.data.customers);
-    const milks = useSelector(state => state.firestore.ordered.milks);
 
     const paymentCalculateHandler = (filterObj) => {
         let payments = arrangeData(filterObj);
@@ -126,17 +124,17 @@ const PaymentCalculator = () => {
 
     return (
         isLoaded(milks) ?
-        <>
-            <Typography variant="h4" component="h4" align="center">
-                Payment Calculator
+            <>
+                <Typography variant="h4" component="h4" align="center">
+                    Payment Calculator
                 </Typography>
-            <Filter onCalculate={paymentCalculateHandler} customers={customers} />
-            <MyList>
-                {renderPayments()}
-            </MyList>
-        </>
-        :
-        <MySkeleton />
+                <Filter onCalculate={paymentCalculateHandler} customers={customersArr} />
+                <MyList>
+                    {renderPayments()}
+                </MyList>
+            </>
+            :
+            <MySkeleton />
     )
 }
 
@@ -144,6 +142,13 @@ const condition = auth => {
     return auth.role === ROLES.ADMIN || auth.role === ROLES.SUPER_ADMIN;
 }
 
+const mapStateToProps = state => ({
+    customers: state.firestore.data.customers,
+    customersArr: state.firestore.ordered.customers,
+    milks: state.firestore.ordered.milks,
+})
+
 export default compose(
     withAuthorization(condition),
+    connect(mapStateToProps),
 )(PaymentCalculator);

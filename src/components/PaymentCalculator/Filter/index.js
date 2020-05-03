@@ -6,6 +6,7 @@ import { MyDatePicker, MySelect } from '../../../core';
 import useStyles from "./style";
 
 export default ({ customers, onCalculate }) => {
+
     const classes = useStyles();
     const [startDate, setStartDate] = React.useState(moment());
     const [endDate, setEndDate] = React.useState(moment());
@@ -69,7 +70,7 @@ export default ({ customers, onCalculate }) => {
                     onChange={handleCustomerId}
                 >
                     <MenuItem value="All">All</MenuItem>
-                    {(customers && customers.length) && customers.map(customer =>
+                    { customers && customers.map(customer =>
                         <MenuItem key={customer.id} value={customer.id}>{customer.customerName}</MenuItem>
                     )}
                 </MySelect>
