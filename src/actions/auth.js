@@ -12,7 +12,7 @@ export const signIn = (credentials) => {
         )
             .then(() => {
                 dispatch(hideLoader());
-                dispatch(showSnackbar('milk entry updated successfully', 'success'));
+                dispatch(showSnackbar('Authenticated successfully', 'success'));
             }).catch((err) => {
                 dispatch(hideLoader());
                 dispatch(showSnackbar(err.message || err.errors.message, 'error'));

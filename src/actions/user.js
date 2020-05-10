@@ -59,7 +59,7 @@ const addFirestoreUser = (userId, user) => {
         firestore.collection('users').doc(userId).set({ ...user })
             .then(() => {
                 dispatch(hideLoader());
-                dispatch(showSnackbar('User addedd successfully', 'success'));
+                dispatch(showSnackbar('User added successfully', 'success'));
             }).catch((err) => {
                 dispatch(hideLoader());
                 dispatch(showSnackbar(err.message || err.errors.message, 'error'));
