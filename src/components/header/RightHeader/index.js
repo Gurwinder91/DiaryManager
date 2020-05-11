@@ -42,7 +42,7 @@ const RightHeader = ({ auth, onSignOut }) => {
         <>
             {
                 (location.pathname.includes(ROUTES.SIGN_IN)) ? null :
-                    auth ?
+                    auth.uid ?
                         whenUserLoggedIn()
                         :
                         <Button variant="contained" color="secondary" component={NavLink} to={ROUTES.SIGN_IN}>Signin</Button>
